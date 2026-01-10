@@ -10,6 +10,7 @@ import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { AIAssistant } from '@/components/AIAssistant';
+import { AgentHub } from '@/components/AgentHub';
 import { Button } from '@/components/ui/button';
 import { useCalendar } from '@/hooks/useCalendar';
 import { CalendarEvent, CalendarView } from '@/types/calendar';
@@ -247,6 +248,9 @@ export default function Demo() {
 
       {/* AI Assistant */}
       <AIAssistant events={demoEvents} />
+
+      {/* AI Agent Hub */}
+      <AgentHub events={demoEvents} />
     </div>
   );
 }
