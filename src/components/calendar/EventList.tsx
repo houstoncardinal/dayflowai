@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,9 +31,9 @@ const colorBgClasses: Record<EventColor, string> = {
 
 export function EventList({ selectedDate, events, onDeleteEvent }: EventListProps) {
   const sortedEvents = [...events].sort((a, b) => {
-    if (!a.startTime) return 1;
-    if (!b.startTime) return -1;
-    return a.startTime.localeCompare(b.startTime);
+    if (!a.start_time) return 1;
+    if (!b.start_time) return -1;
+    return a.start_time.localeCompare(b.start_time);
   });
 
   return (
@@ -72,12 +72,15 @@ export function EventList({ selectedDate, events, onDeleteEvent }: EventListProp
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate">{event.title}</h4>
-                    {event.startTime && (
+                    {event.start_time && (
                       <p className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                         <Clock className="h-3 w-3" />
-                        {event.startTime}
-                        {event.endTime && ` - ${event.endTime}`}
+                        {event.start_time}
+                        {event.end_time && ` - ${event.end_time}`}
                       </p>
+                    )}
+                    {event.all_day && (
+                      <p className="text-xs text-muted-foreground mt-1">All day</p>
                     )}
                     {event.description && (
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
