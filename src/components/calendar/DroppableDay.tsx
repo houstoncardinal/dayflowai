@@ -1,39 +1,38 @@
-import { motion } from 'framer-motion';
+import { useDroppable } from '@dnd-kit/core';
 import { format, isSameDay } from 'date-fns';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DayInfo, EventColor } from '@/types/calendar';
+import { DraggableEvent } from './DraggableEvent';
 
-interface CalendarDayProps {
+interface DroppableDayProps {
   day: DayInfo;
   isSelected: boolean;
   onClick: () => void;
 }
 
-const colorClasses: Record<EventColor, string> = {
-  coral: 'bg-event-coral',
-  teal: 'bg-event-teal',
-  amber: 'bg-event-amber',
-  violet: 'bg-event-violet',
-  emerald: 'bg-event-emerald',
-  rose: 'bg-event-rose',
-};
+export function DroppableDay({ day, isSelected, onClick }: DroppableDayProps) {
+  const { isOver, setNodeRef } = useDroppable({
+    id: format(day.date, 'yyyy-MM-dd'),
+    data: { date: day.date },
+  });
 
-export function CalendarDay({ day, isSelected, onClick }: CalendarDayProps) {
   const dayNumber = format(day.date, 'd');
   const maxVisibleEvents = 3;
   const visibleEvents = day.events.slice(0, maxVisibleEvents);
   const remainingCount = day.events.length - maxVisibleEvents;
 
   return (
-    <motion.button
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+    <motion.div
+      ref={setNodeRef}
+      whileHover={{ scale: 1.01 }}
       onClick={onClick}
       className={cn(
-        'relative h-28 p-2 text-left transition-all duration-200 rounded-xl border border-transparent',
+        'relative h-28 p-2 text-left transition-all duration-200 rounded-xl border border-transparent cursor-pointer',
         'hover:border-border hover:bg-secondary/50',
         day.isCurrentMonth ? 'bg-card' : 'bg-muted/30',
         isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+        isOver && 'bg-primary/10 border-primary'
       )}
     >
       <span
@@ -47,19 +46,8 @@ export function CalendarDay({ day, isSelected, onClick }: CalendarDayProps) {
         {dayNumber}
       </span>
       <div className="mt-1 space-y-1">
-        {visibleEvents.map((event, index) => (
-          <motion.div
-            key={event.id}
-            initial={{ opacity: 0, x: -5 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className={cn(
-              'truncate rounded-md px-2 py-0.5 text-xs font-medium text-white',
-              colorClasses[event.color]
-            )}
-          >
-            {event.title}
-          </motion.div>
+        {visibleEvents.map((event) => (
+          <DraggableEvent key={event.id} event={event} />
         ))}
         {remainingCount > 0 && (
           <span className="text-xs text-muted-foreground px-2">
@@ -67,6 +55,6 @@ export function CalendarDay({ day, isSelected, onClick }: CalendarDayProps) {
           </span>
         )}
       </div>
-    </motion.button>
+    </motion.div>
   );
 }

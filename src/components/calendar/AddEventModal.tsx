@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,13 +11,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import { CalendarEvent, EventColor } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 
 interface AddEventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (event: Omit<CalendarEvent, 'id'>) => void;
+  onAdd: (event: Omit<CalendarEvent, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
   selectedDate: Date | null;
 }
 
@@ -37,6 +37,7 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
   const [endTime, setEndTime] = useState('10:00');
   const [description, setDescription] = useState('');
   const [color, setColor] = useState<EventColor>('teal');
+  const [allDay, setAllDay] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,11 +45,12 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
 
     onAdd({
       title: title.trim(),
-      date: selectedDate,
-      startTime,
-      endTime,
-      description: description.trim() || undefined,
+      event_date: format(selectedDate, 'yyyy-MM-dd'),
+      start_time: allDay ? null : startTime,
+      end_time: allDay ? null : endTime,
+      description: description.trim() || null,
       color,
+      all_day: allDay,
     });
 
     // Reset form
@@ -57,6 +59,7 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
     setEndTime('10:00');
     setDescription('');
     setColor('teal');
+    setAllDay(false);
     onClose();
   };
 
@@ -85,26 +88,42 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Start Time</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">End Time</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="allDay">All day event</Label>
+            <Switch
+              id="allDay"
+              checked={allDay}
+              onCheckedChange={setAllDay}
+            />
           </div>
+
+          {!allDay && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="grid grid-cols-2 gap-4"
+            >
+              <div className="space-y-2">
+                <Label htmlFor="startTime">Start Time</Label>
+                <Input
+                  id="startTime"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="endTime">End Time</Label>
+                <Input
+                  id="endTime"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </div>
+            </motion.div>
+          )}
 
           <div className="space-y-2">
             <Label>Color</Label>

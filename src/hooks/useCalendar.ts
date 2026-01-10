@@ -9,84 +9,19 @@ import {
   isSameDay,
   addMonths,
   subMonths,
-  format
+  addWeeks,
+  subWeeks,
+  addDays,
+  subDays,
+  format,
+  parseISO
 } from 'date-fns';
-import { CalendarEvent, DayInfo, EventColor } from '@/types/calendar';
+import { CalendarEvent, CalendarView, DayInfo, HourSlot } from '@/types/calendar';
 
-const EVENT_COLORS: EventColor[] = ['coral', 'teal', 'amber', 'violet', 'emerald', 'rose'];
-
-const generateId = () => Math.random().toString(36).substring(2, 9);
-
-// Sample events for demo
-const createSampleEvents = (): CalendarEvent[] => {
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  const currentYear = today.getFullYear();
-
-  return [
-    {
-      id: generateId(),
-      title: 'Team Standup',
-      date: new Date(currentYear, currentMonth, 15),
-      startTime: '09:00',
-      endTime: '09:30',
-      color: 'teal',
-    },
-    {
-      id: generateId(),
-      title: 'Product Review',
-      date: new Date(currentYear, currentMonth, 15),
-      startTime: '14:00',
-      endTime: '15:00',
-      color: 'violet',
-    },
-    {
-      id: generateId(),
-      title: 'Design Workshop',
-      date: new Date(currentYear, currentMonth, 18),
-      startTime: '10:00',
-      endTime: '12:00',
-      color: 'coral',
-    },
-    {
-      id: generateId(),
-      title: 'Client Call',
-      date: new Date(currentYear, currentMonth, 20),
-      startTime: '11:00',
-      endTime: '11:30',
-      color: 'amber',
-    },
-    {
-      id: generateId(),
-      title: 'Sprint Planning',
-      date: new Date(currentYear, currentMonth, 22),
-      startTime: '13:00',
-      endTime: '14:30',
-      color: 'emerald',
-    },
-    {
-      id: generateId(),
-      title: 'Yoga Class',
-      date: new Date(currentYear, currentMonth, today.getDate()),
-      startTime: '07:00',
-      endTime: '08:00',
-      color: 'rose',
-    },
-    {
-      id: generateId(),
-      title: 'Lunch with Alex',
-      date: new Date(currentYear, currentMonth, today.getDate()),
-      startTime: '12:30',
-      endTime: '13:30',
-      color: 'teal',
-    },
-  ];
-};
-
-export function useCalendar() {
+export function useCalendar(events: CalendarEvent[]) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [events, setEvents] = useState<CalendarEvent[]>(createSampleEvents);
+  const [view, setView] = useState<CalendarView>('month');
 
   const calendarDays = useMemo((): DayInfo[] => {
     const monthStart = startOfMonth(currentDate);
@@ -101,44 +36,108 @@ export function useCalendar() {
       date,
       isCurrentMonth: isSameMonth(date, currentDate),
       isToday: isSameDay(date, today),
-      events: events.filter((event) => isSameDay(event.date, date)),
+      events: events.filter((event) => isSameDay(parseISO(event.event_date), date)),
     }));
   }, [currentDate, events]);
 
-  const goToNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  const goToPrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
+  const weekDays = useMemo((): DayInfo[] => {
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+    const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
+    const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+    const today = new Date();
+
+    return days.map((date) => ({
+      date,
+      isCurrentMonth: isSameMonth(date, currentDate),
+      isToday: isSameDay(date, today),
+      events: events.filter((event) => isSameDay(parseISO(event.event_date), date)),
+    }));
+  }, [currentDate, events]);
+
+  const dayHours = useMemo((): HourSlot[] => {
+    const hours: HourSlot[] = [];
+    const dateStr = format(currentDate, 'yyyy-MM-dd');
+    
+    for (let hour = 0; hour < 24; hour++) {
+      const hourEvents = events.filter((event) => {
+        if (event.event_date !== dateStr) return false;
+        if (!event.start_time) return hour === 0;
+        const eventHour = parseInt(event.start_time.split(':')[0], 10);
+        return eventHour === hour;
+      });
+
+      hours.push({
+        hour,
+        label: format(new Date().setHours(hour, 0, 0, 0), 'h a'),
+        events: hourEvents,
+      });
+    }
+    return hours;
+  }, [currentDate, events]);
+
+  const goToNext = () => {
+    switch (view) {
+      case 'month':
+        setCurrentDate(addMonths(currentDate, 1));
+        break;
+      case 'week':
+        setCurrentDate(addWeeks(currentDate, 1));
+        break;
+      case 'day':
+        setCurrentDate(addDays(currentDate, 1));
+        break;
+    }
+  };
+
+  const goToPrev = () => {
+    switch (view) {
+      case 'month':
+        setCurrentDate(subMonths(currentDate, 1));
+        break;
+      case 'week':
+        setCurrentDate(subWeeks(currentDate, 1));
+        break;
+      case 'day':
+        setCurrentDate(subDays(currentDate, 1));
+        break;
+    }
+  };
+
   const goToToday = () => {
     setCurrentDate(new Date());
     setSelectedDate(new Date());
   };
 
-  const addEvent = (event: Omit<CalendarEvent, 'id'>) => {
-    setEvents((prev) => [...prev, { ...event, id: generateId() }]);
+  const getHeaderLabel = () => {
+    switch (view) {
+      case 'month':
+        return format(currentDate, 'MMMM yyyy');
+      case 'week':
+        const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+        const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
+        return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d, yyyy')}`;
+      case 'day':
+        return format(currentDate, 'EEEE, MMMM d, yyyy');
+    }
   };
-
-  const deleteEvent = (id: string) => {
-    setEvents((prev) => prev.filter((event) => event.id !== id));
-  };
-
-  const currentMonthLabel = format(currentDate, 'MMMM yyyy');
 
   const selectedDateEvents = selectedDate
-    ? events.filter((event) => isSameDay(event.date, selectedDate))
+    ? events.filter((event) => isSameDay(parseISO(event.event_date), selectedDate))
     : [];
 
   return {
     currentDate,
     selectedDate,
     setSelectedDate,
+    view,
+    setView,
     calendarDays,
-    currentMonthLabel,
-    goToNextMonth,
-    goToPrevMonth,
+    weekDays,
+    dayHours,
+    currentMonthLabel: getHeaderLabel(),
+    goToNext,
+    goToPrev,
     goToToday,
-    events,
-    addEvent,
-    deleteEvent,
     selectedDateEvents,
-    eventColors: EVENT_COLORS,
   };
 }
