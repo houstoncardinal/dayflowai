@@ -103,7 +103,7 @@ export default function Auth() {
           <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-primary mb-4">
             <Calendar className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">Calendly</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Dayflow</h1>
           <p className="text-muted-foreground mt-2">
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </p>
