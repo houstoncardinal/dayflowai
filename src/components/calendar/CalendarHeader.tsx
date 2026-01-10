@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CalendarView } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 interface CalendarHeaderProps {
   monthLabel: string;
@@ -31,6 +32,8 @@ export function CalendarHeader({
   onAddEvent,
 }: CalendarHeaderProps) {
   const { signOut, profile } = useAuth();
+  const location = useLocation();
+  const isDemo = location.pathname === '/demo';
 
   return (
     <motion.header 
@@ -93,7 +96,7 @@ export function CalendarHeader({
       </div>
       
       <div className="flex items-center gap-3">
-        {profile?.display_name && (
+        {!isDemo && profile?.display_name && (
           <span className="text-sm text-muted-foreground">
             Hi, {profile.display_name}
           </span>
@@ -102,9 +105,11 @@ export function CalendarHeader({
           <Plus className="h-4 w-4" />
           Add Event
         </Button>
-        <Button variant="ghost" size="icon" onClick={signOut} title="Sign out">
-          <LogOut className="h-4 w-4" />
-        </Button>
+        {!isDemo && (
+          <Button variant="ghost" size="icon" onClick={signOut} title="Sign out">
+            <LogOut className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </motion.header>
   );
