@@ -9,6 +9,7 @@ import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { AIAssistant } from '@/components/AIAssistant';
 import { Button } from '@/components/ui/button';
 import { useCalendar } from '@/hooks/useCalendar';
 import { CalendarEvent, CalendarView } from '@/types/calendar';
@@ -243,6 +244,9 @@ export default function Demo() {
         onAdd={handleAddEvent}
         selectedDate={selectedDate}
       />
+
+      {/* AI Assistant */}
+      <AIAssistant events={demoEvents} />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { AIAssistant } from '@/components/AIAssistant';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useAuth } from '@/contexts/AuthContext';
@@ -154,6 +155,9 @@ const Index = () => {
         onAdd={handleAddEvent}
         selectedDate={selectedDate}
       />
+
+      {/* AI Assistant */}
+      <AIAssistant events={events} />
     </div>
   );
 };
