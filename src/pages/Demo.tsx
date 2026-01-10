@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
@@ -7,11 +7,14 @@ import { WeekView } from '@/components/calendar/WeekView';
 import { DayView } from '@/components/calendar/DayView';
 import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
+import { OnboardingTour } from '@/components/OnboardingTour';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { useCalendar } from '@/hooks/useCalendar';
 import { CalendarEvent, CalendarView } from '@/types/calendar';
 import { format, addDays, subDays } from 'date-fns';
 import { ArrowRight, Info } from 'lucide-react';
+import { fireEventConfetti } from '@/lib/confetti';
 
 // Demo events for showcasing the app
 const createDemoEvents = (): CalendarEvent[] => {
@@ -94,6 +97,12 @@ const createDemoEvents = (): CalendarEvent[] => {
 export default function Demo() {
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [demoEvents, setDemoEvents] = useState<CalendarEvent[]>(createDemoEvents);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('dayflow-demo-onboarding-complete');
+  });
+  const [isFirstEvent, setIsFirstEvent] = useState(() => {
+    return !localStorage.getItem('dayflow-demo-first-event');
+  });
   
   const {
     currentDate,
@@ -118,6 +127,13 @@ export default function Demo() {
       user_id: 'demo',
     };
     setDemoEvents((prev) => [...prev, newEvent]);
+    
+    // Fire confetti on first event creation
+    if (isFirstEvent) {
+      fireEventConfetti();
+      setIsFirstEvent(false);
+      localStorage.setItem('dayflow-demo-first-event', 'true');
+    }
   };
 
   const handleDeleteEvent = (id: string) => {
@@ -134,6 +150,11 @@ export default function Demo() {
     );
   };
 
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('dayflow-demo-onboarding-complete', 'true');
+  };
+
   // Override selectedDateEvents for demo
   const demoSelectedDateEvents = selectedDate
     ? demoEvents.filter((event) => event.event_date === format(selectedDate, 'yyyy-MM-dd'))
@@ -141,11 +162,16 @@ export default function Demo() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Onboarding Tour */}
+      {showOnboarding && (
+        <OnboardingTour onComplete={handleOnboardingComplete} />
+      )}
+
       {/* Demo Banner */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-primary text-primary-foreground py-2 px-4 flex items-center justify-center gap-4 text-sm"
+        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-event-coral via-event-violet to-primary text-white py-2 px-4 flex items-center justify-center gap-4 text-sm"
       >
         <Info className="h-4 w-4" />
         <span>You're viewing the demo. Events won't be saved.</span>
@@ -155,6 +181,9 @@ export default function Demo() {
             <ArrowRight className="h-3 w-3" />
           </Button>
         </Link>
+        <div className="absolute right-4">
+          <ThemeToggle />
+        </div>
       </motion.div>
 
       <div className="flex w-full pt-10">

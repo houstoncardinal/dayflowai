@@ -21,6 +21,7 @@ import {
   PartyPopper
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const features = [
   {
@@ -186,6 +187,7 @@ export default function Landing() {
             </span>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link to="/demo">
               <Button variant="ghost" className="hover:bg-event-violet/10">Try Demo</Button>
             </Link>

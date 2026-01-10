@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sun, Mail, Lock, User } from 'lucide-react';
+import { Sun, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { fireSuccessConfetti } from '@/lib/confetti';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -71,9 +73,11 @@ export default function Auth() {
           variant: 'destructive',
         });
       } else {
+        // Fire confetti on successful signup!
+        fireSuccessConfetti();
         toast({
-          title: 'Account created!',
-          description: 'You can now start using your calendar.',
+          title: '🎉 Account created!',
+          description: 'Welcome to Dayflow! Your calendar awaits.',
         });
       }
     } else {
@@ -93,17 +97,32 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      {/* Top bar with back button and theme toggle */}
+      <div className="fixed top-4 left-4 right-4 flex items-center justify-between z-10">
+        <Link to="/">
+          <Button variant="ghost" className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </Link>
+        <ThemeToggle />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-primary mb-4">
-            <Sun className="h-7 w-7 text-primary-foreground" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">Dayflow</h1>
+          <motion.div 
+            whileHover={{ rotate: 360 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-event-coral via-event-violet to-primary mb-4 shadow-lg"
+          >
+            <Sun className="h-7 w-7 text-white" />
+          </motion.div>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-event-coral via-event-violet to-primary bg-clip-text text-transparent">Dayflow</h1>
           <p className="text-muted-foreground mt-2">
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </p>
