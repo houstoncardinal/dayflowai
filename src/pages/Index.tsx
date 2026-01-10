@@ -10,6 +10,7 @@ import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { AIAssistant } from '@/components/AIAssistant';
+import { AgentHub } from '@/components/AgentHub';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useAuth } from '@/contexts/AuthContext';
@@ -158,6 +159,9 @@ const Index = () => {
 
       {/* AI Assistant */}
       <AIAssistant events={events} />
+
+      {/* AI Agent Hub */}
+      <AgentHub events={events} />
     </div>
   );
 };
