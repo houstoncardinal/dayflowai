@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.voice-command-parser]
 verify_jwt = false
+
+[functions.calendar-sync]
+verify_jwt = false
