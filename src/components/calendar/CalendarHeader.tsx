@@ -31,9 +31,13 @@ export function CalendarHeader({
   onToday,
   onAddEvent,
 }: CalendarHeaderProps) {
-  const { signOut, profile } = useAuth();
   const location = useLocation();
   const isDemo = location.pathname === '/demo';
+  
+  // Only use auth when not in demo mode
+  const auth = useAuth();
+  const signOut = isDemo ? undefined : auth.signOut;
+  const profile = isDemo ? null : auth.profile;
 
   return (
     <motion.header 
