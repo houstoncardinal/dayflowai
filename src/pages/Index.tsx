@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
@@ -12,8 +12,11 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { AIAssistant } from '@/components/AIAssistant';
 import { AgentHub } from '@/components/AgentHub';
 import { VoiceAgent } from '@/components/VoiceAgent';
+import { DailyBriefing } from '@/components/DailyBriefing';
+import { ProactiveAlertBanner } from '@/components/ProactiveAlertBanner';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
+import { useProactiveAlerts, ProactiveAlert } from '@/hooks/useProactiveAlerts';
 import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
@@ -30,7 +33,27 @@ const Index = () => {
     return !localStorage.getItem('dayflow-app-first-event');
   });
   
+  // Daily briefing state - show once per day
+  const [showDailyBriefing, setShowDailyBriefing] = useState(() => {
+    const lastBriefing = localStorage.getItem('dayflow-last-briefing');
+    const today = format(new Date(), 'yyyy-MM-dd');
+    return lastBriefing !== today && !localStorage.getItem('dayflow-app-onboarding-complete') === false;
+  });
+  
+  // Current proactive alert
+  const [currentAlert, setCurrentAlert] = useState<ProactiveAlert | null>(null);
+  
   const { events, loading: eventsLoading, addEvent, deleteEvent, moveEvent } = useEvents();
+  
+  // Proactive alerts hook
+  const handleProactiveAlert = useCallback((alert: ProactiveAlert) => {
+    setCurrentAlert(alert);
+  }, []);
+  
+  const { alerts, dismissAlert, dismissAllAlerts } = useProactiveAlerts(events, {
+    enabled: !authLoading && !!user && !showDailyBriefing,
+    onAlert: handleProactiveAlert,
+  });
   
   const {
     currentDate,
@@ -54,6 +77,27 @@ const Index = () => {
     }
   }, [user, authLoading, navigate]);
 
+  // Show daily briefing after events load (only if user completed onboarding)
+  useEffect(() => {
+    if (!eventsLoading && user && !showOnboarding) {
+      const lastBriefing = localStorage.getItem('dayflow-last-briefing');
+      const today = format(new Date(), 'yyyy-MM-dd');
+      if (lastBriefing !== today) {
+        setShowDailyBriefing(true);
+      }
+    }
+  }, [eventsLoading, user, showOnboarding]);
+
+  const handleDismissBriefing = () => {
+    setShowDailyBriefing(false);
+    localStorage.setItem('dayflow-last-briefing', format(new Date(), 'yyyy-MM-dd'));
+  };
+
+  const handleDismissAlert = (alertId: string) => {
+    dismissAlert(alertId);
+    setCurrentAlert(null);
+  };
+
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
     localStorage.setItem('dayflow-app-onboarding-complete', 'true');
@@ -68,6 +112,11 @@ const Index = () => {
       setIsFirstEvent(false);
       localStorage.setItem('dayflow-app-first-event', 'true');
     }
+  };
+
+  // Handler for voice-created events
+  const handleVoiceCreateEvent = async (event: any) => {
+    await addEvent(event);
   };
 
   if (authLoading) {
@@ -92,6 +141,18 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Daily Briefing Modal */}
+      {showDailyBriefing && events.length >= 0 && !showOnboarding && (
+        <DailyBriefing events={events} onDismiss={handleDismissBriefing} />
+      )}
+
+      {/* Proactive Alert Banner */}
+      <ProactiveAlertBanner 
+        alert={currentAlert} 
+        onDismiss={handleDismissAlert}
+        autoSpeak={true}
+      />
+
       {/* Onboarding Tour */}
       {showOnboarding && (
         <OnboardingTour onComplete={handleOnboardingComplete} />
@@ -165,7 +226,7 @@ const Index = () => {
       <AgentHub events={events} />
 
       {/* Voice Agent - ElevenLabs */}
-      <VoiceAgent events={events} />
+      <VoiceAgent events={events} onCreateEvent={handleVoiceCreateEvent} />
     </div>
   );
 };

@@ -61,11 +61,24 @@ interface SpeechRecognitionType {
 interface VoiceAgentProps {
   events: CalendarEvent[];
   onTaskComplete?: (task: AutomationTask) => void;
+  onCreateEvent?: (event: any) => Promise<void>;
 }
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
 
-export function VoiceAgent({ events, onTaskComplete }: VoiceAgentProps) {
+// Voice command patterns for event creation
+const EVENT_CREATION_PATTERNS = [
+  /schedule/i,
+  /create/i,
+  /add.*event/i,
+  /add.*meeting/i,
+  /set up/i,
+  /book/i,
+  /remind me/i,
+  /appointment/i,
+];
+
+export function VoiceAgent({ events, onTaskComplete, onCreateEvent }: VoiceAgentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -113,6 +126,57 @@ export function VoiceAgent({ events, onTaskComplete }: VoiceAgentProps) {
     };
   }, []);
 
+  const isEventCreationCommand = (text: string): boolean => {
+    return EVENT_CREATION_PATTERNS.some(pattern => pattern.test(text));
+  };
+
+  const handleEventCreation = async (transcript: string): Promise<string> => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/voice-command-parser`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({
+          command: transcript,
+          currentDate: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to parse voice command');
+      }
+
+      const parsed = await response.json();
+
+      if (parsed.error) {
+        return `I couldn't understand that command. ${parsed.suggestion || 'Try saying something like "Schedule a meeting with John tomorrow at 2pm"'}`;
+      }
+
+      // Create the event
+      if (onCreateEvent && parsed.title && parsed.event_date) {
+        await onCreateEvent({
+          title: parsed.title,
+          event_date: parsed.event_date,
+          start_time: parsed.start_time || null,
+          end_time: parsed.end_time || null,
+          description: parsed.description || null,
+          all_day: parsed.all_day || !parsed.start_time,
+          color: parsed.color || 'teal',
+        });
+
+        const timeInfo = parsed.start_time ? ` at ${parsed.start_time}` : '';
+        return `Done! I've added "${parsed.title}" to your calendar for ${parsed.event_date}${timeInfo}. Is there anything else you'd like me to help with?`;
+      }
+
+      return "I understood the command but couldn't create the event. Please try again.";
+    } catch (error) {
+      console.error('Event creation error:', error);
+      return "Sorry, I had trouble creating that event. Please try again or use the manual event form.";
+    }
+  };
+
   const handleUserSpeech = async (transcript: string) => {
     if (!transcript.trim()) return;
     
@@ -120,44 +184,50 @@ export function VoiceAgent({ events, onTaskComplete }: VoiceAgentProps) {
     setIsSpeaking(true);
     
     try {
-      // Process with AI assistant
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
-          messages: [{ role: 'user', content: transcript }],
-          events: events.slice(0, 30),
-          action: 'voice',
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to process voice command');
-      }
-
-      // Parse streaming response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
       let result = '';
 
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          
-          const text = decoder.decode(value, { stream: true });
-          const lines = text.split('\n');
-          
-          for (const line of lines) {
-            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-              try {
-                const json = JSON.parse(line.slice(6));
-                const content = json.choices?.[0]?.delta?.content;
-                if (content) result += content;
-              } catch {}
+      // Check if this is an event creation command
+      if (isEventCreationCommand(transcript)) {
+        result = await handleEventCreation(transcript);
+      } else {
+        // Process with AI assistant for other commands
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: [{ role: 'user', content: transcript }],
+            events: events.slice(0, 30),
+            action: 'voice',
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to process voice command');
+        }
+
+        // Parse streaming response
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+
+        if (reader) {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const text = decoder.decode(value, { stream: true });
+            const lines = text.split('\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                try {
+                  const json = JSON.parse(line.slice(6));
+                  const content = json.choices?.[0]?.delta?.content;
+                  if (content) result += content;
+                } catch {}
+              }
             }
           }
         }
@@ -516,7 +586,11 @@ export function VoiceAgent({ events, onTaskComplete }: VoiceAgentProps) {
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground text-center">Try saying:</p>
                   <div className="flex flex-wrap justify-center gap-1">
-                    {['What\'s on my schedule?', 'Prepare for my next meeting', 'Any tasks for today?'].map((cmd, i) => (
+                    {[
+                      'Schedule a meeting tomorrow at 2pm',
+                      'What\'s on my schedule?',
+                      'Prepare for my next meeting',
+                    ].map((cmd, i) => (
                       <span
                         key={i}
                         className="text-xs bg-secondary/50 px-2 py-1 rounded-full text-muted-foreground"
