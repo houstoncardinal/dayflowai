@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.elevenlabs-tts]
 verify_jwt = false
+
+[functions.voice-command-parser]
+verify_jwt = false
