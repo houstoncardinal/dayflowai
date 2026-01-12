@@ -11,6 +11,7 @@ import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { AIAssistant } from '@/components/AIAssistant';
 import { AgentHub } from '@/components/AgentHub';
+import { VoiceAgent } from '@/components/VoiceAgent';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useAuth } from '@/contexts/AuthContext';
@@ -162,6 +163,9 @@ const Index = () => {
 
       {/* AI Agent Hub */}
       <AgentHub events={events} />
+
+      {/* Voice Agent - ElevenLabs */}
+      <VoiceAgent events={events} />
     </div>
   );
 };
