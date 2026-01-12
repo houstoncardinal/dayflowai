@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   ArrowRight,
   Check,
+  X,
   Calendar,
   Mic,
   Brain,
@@ -10,10 +11,11 @@ import {
   Sparkles,
   ChevronRight,
   Star,
-  Play
+  Play,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import heroIllustration from '@/assets/hero-illustration.png';
 
 const features = [
   {
@@ -56,6 +58,20 @@ const testimonials = [
   },
 ];
 
+// Comparison table data
+const comparisonFeatures = [
+  { name: 'Unlimited events', free: true, pro: true },
+  { name: 'All calendar views', free: true, pro: true },
+  { name: 'Drag & drop scheduling', free: true, pro: true },
+  { name: 'Real-time sync', free: true, pro: true },
+  { name: 'Voice commands', free: false, pro: true },
+  { name: 'AI assistant', free: 'Basic', pro: 'Advanced' },
+  { name: 'Proactive alerts', free: false, pro: true },
+  { name: 'Analytics dashboard', free: false, pro: true },
+  { name: 'Calendar integrations', free: false, pro: true },
+  { name: 'Priority support', free: false, pro: true },
+];
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
@@ -96,136 +112,109 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* Hero Section - Ultra Clean */}
-      <section className="pt-32 pb-24 px-6">
+      {/* Hero Section with Illustration */}
+      <section className="pt-32 pb-24 px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="max-w-3xl"
-          >
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-sm mb-8">
-              <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-muted-foreground">Now with Voice AI</span>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-            </div>
-            
-            <h1 className="font-display text-5xl md:text-7xl tracking-tight mb-6 leading-[1.1]">
-              Your calendar,
-              <br />
-              <span className="text-muted-foreground">simplified.</span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
-              A beautifully minimal calendar with voice control, AI intelligence, and proactive scheduling that adapts to how you work.
-            </p>
-            
-            <div className="flex flex-wrap items-center gap-4">
-              <Link to="/auth">
-                <Button size="lg" className="h-12 px-6 rounded-xl">
-                  Start Free
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
-              <Link to="/demo">
-                <Button size="lg" variant="outline" className="h-12 px-6 rounded-xl">
-                  <Play className="h-4 w-4 mr-2" />
-                  Watch Demo
-                </Button>
-              </Link>
-            </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <div>
+              {/* Badge */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-sm mb-8"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-muted-foreground">Now with Voice AI</span>
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+              </motion.div>
+              
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="font-display text-5xl md:text-6xl lg:text-7xl tracking-tight mb-6 leading-[1.1]"
+              >
+                Your calendar,
+                <br />
+                <span className="text-muted-foreground">simplified.</span>
+              </motion.h1>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed"
+              >
+                A beautifully minimal calendar with voice control, AI intelligence, and proactive scheduling that adapts to how you work.
+              </motion.p>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="flex flex-wrap items-center gap-4"
+              >
+                <Link to="/auth">
+                  <Button size="lg" className="h-12 px-6 rounded-xl">
+                    Start Free
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+                <Link to="/demo">
+                  <Button size="lg" variant="outline" className="h-12 px-6 rounded-xl">
+                    <Play className="h-4 w-4 mr-2" />
+                    Watch Demo
+                  </Button>
+                </Link>
+              </motion.div>
 
-            {/* Social Proof */}
-            <div className="flex items-center gap-6 mt-12 pt-8 border-t border-border">
-              <div className="flex -space-x-2">
-                {['SC', 'MJ', 'ER', 'AK'].map((initials, i) => (
-                  <div 
-                    key={i}
-                    className="h-8 w-8 rounded-full bg-secondary border-2 border-background flex items-center justify-center text-xs font-medium"
-                  >
-                    {initials}
-                  </div>
-                ))}
-              </div>
-              <div className="text-sm">
-                <div className="flex items-center gap-1 text-foreground font-medium">
-                  <Star className="h-3.5 w-3.5 fill-current" />
-                  4.9/5
-                </div>
-                <span className="text-muted-foreground">from 2,000+ reviews</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Calendar Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="mt-20"
-          >
-            <div className="bg-card rounded-2xl border border-border shadow-clean-xl overflow-hidden">
-              {/* Window Header */}
-              <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-secondary/30">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-amber-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                <span className="text-xs text-muted-foreground font-medium">January 2026</span>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Mic className="h-3 w-3" />
-                  Voice Active
-                </div>
-              </div>
-
-              {/* Calendar Grid */}
-              <div className="p-6">
-                <div className="grid grid-cols-7 gap-2 mb-4">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                    <div key={i} className="text-center text-xs font-medium text-muted-foreground py-2">
-                      {day}
+              {/* Social Proof */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="flex items-center gap-6 mt-12 pt-8 border-t border-border"
+              >
+                <div className="flex -space-x-2">
+                  {['SC', 'MJ', 'ER', 'AK'].map((initials, i) => (
+                    <div 
+                      key={i}
+                      className="h-8 w-8 rounded-full bg-secondary border-2 border-background flex items-center justify-center text-xs font-medium"
+                    >
+                      {initials}
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-7 gap-2">
-                  {Array.from({ length: 35 }).map((_, i) => {
-                    const dayNum = (i % 31) + 1;
-                    const hasEvent = [5, 9, 14, 18, 23, 27].includes(i);
-                    const isToday = i === 12;
-                    
-                    return (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 0.3 + i * 0.01 }}
-                        className={`aspect-square rounded-lg p-1.5 text-sm flex flex-col
-                          ${isToday ? 'bg-foreground text-background' : 'hover:bg-secondary/50'}
-                          ${hasEvent && !isToday ? 'bg-secondary/50' : ''}
-                        `}
-                      >
-                        <span className={`font-medium text-xs ${!isToday && !hasEvent ? 'text-muted-foreground' : ''}`}>
-                          {dayNum}
-                        </span>
-                        {hasEvent && (
-                          <div className={`mt-auto h-1 rounded-full ${
-                            i === 5 ? 'bg-event-teal' : 
-                            i === 9 ? 'bg-event-violet' : 
-                            i === 14 ? 'bg-event-coral' : 
-                            i === 18 ? 'bg-event-amber' :
-                            i === 23 ? 'bg-event-emerald' : 'bg-event-rose'
-                          }`} />
-                        )}
-                      </motion.div>
-                    );
-                  })}
+                <div className="text-sm">
+                  <div className="flex items-center gap-1 text-foreground font-medium">
+                    <Star className="h-3.5 w-3.5 fill-current" />
+                    4.9/5
+                  </div>
+                  <span className="text-muted-foreground">from 2,000+ reviews</span>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </motion.div>
+
+            {/* Right Illustration */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="relative lg:pl-8"
+            >
+              <div className="relative">
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-event-violet/5 rounded-3xl blur-3xl" />
+                <img 
+                  src={heroIllustration} 
+                  alt="Dayflow calendar interface" 
+                  className="relative w-full max-w-lg mx-auto lg:max-w-none drop-shadow-2xl"
+                />
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -233,9 +222,10 @@ export default function Landing() {
       <section id="features" className="py-24 px-6 bg-secondary/30">
         <div className="max-w-6xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
             className="max-w-xl mb-16"
           >
             <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Features</span>
@@ -253,10 +243,10 @@ export default function Landing() {
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-card rounded-2xl p-8 border border-border hover-lift"
               >
                 <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
@@ -274,9 +264,10 @@ export default function Landing() {
       <section id="testimonials" className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
             <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Reviews</span>
@@ -289,10 +280,10 @@ export default function Landing() {
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={testimonial.author}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-card rounded-2xl p-8 border border-border"
               >
                 <div className="flex gap-0.5 mb-6">
@@ -311,27 +302,33 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Pricing Section with Comparison Table */}
       <section id="pricing" className="py-24 px-6 bg-secondary/30">
         <div className="max-w-6xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
             <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Pricing</span>
-            <h2 className="font-display text-3xl md:text-4xl mt-4">
-              Simple pricing
+            <h2 className="font-display text-3xl md:text-4xl mt-4 mb-4">
+              Simple, transparent pricing
             </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Start free and upgrade when you're ready for more power.
+            </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto mb-16">
             {/* Free Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5 }}
               className="bg-card rounded-2xl p-8 border border-border"
             >
               <h3 className="text-xl font-semibold mb-1">Free</h3>
@@ -339,14 +336,7 @@ export default function Landing() {
                 <span className="text-4xl font-bold">$0</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                {['Unlimited events', 'All calendar views', 'Drag & drop', 'Real-time sync'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-sm">
-                    <Check className="h-4 w-4 text-event-emerald" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm text-muted-foreground mb-6">Perfect for getting started</p>
               <Link to="/auth">
                 <Button variant="outline" className="w-full h-11 rounded-xl">
                   Get Started
@@ -355,11 +345,11 @@ export default function Landing() {
             </motion.div>
 
             {/* Pro Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: 0.1 }}
               className="bg-foreground text-background rounded-2xl p-8 relative"
             >
               <div className="absolute top-4 right-4 text-xs font-medium bg-background text-foreground px-2 py-1 rounded-full">
@@ -370,14 +360,7 @@ export default function Landing() {
                 <span className="text-4xl font-bold">$9</span>
                 <span className="text-background/60">/month</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                {['Everything in Free', 'Voice commands', 'AI assistant', 'Proactive alerts', 'Analytics dashboard'].map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-sm">
-                    <Check className="h-4 w-4" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <p className="text-sm text-background/60 mb-6">For power users</p>
               <Link to="/auth">
                 <Button className="w-full h-11 rounded-xl bg-background text-foreground hover:bg-background/90">
                   Start Free Trial
@@ -385,15 +368,72 @@ export default function Landing() {
               </Link>
             </motion.div>
           </div>
+
+          {/* Comparison Table */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="bg-card rounded-2xl border border-border overflow-hidden max-w-3xl mx-auto"
+          >
+            <div className="p-6 border-b border-border">
+              <h3 className="text-lg font-semibold">Compare plans</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Feature</th>
+                    <th className="text-center py-4 px-6 text-sm font-medium w-32">Free</th>
+                    <th className="text-center py-4 px-6 text-sm font-medium w-32 bg-secondary/50">Pro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonFeatures.map((feature, index) => (
+                    <motion.tr 
+                      key={feature.name}
+                      initial={{ opacity: 0, x: -10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.03 }}
+                      className="border-b border-border last:border-0"
+                    >
+                      <td className="py-4 px-6 text-sm">{feature.name}</td>
+                      <td className="py-4 px-6 text-center">
+                        {feature.free === true ? (
+                          <Check className="h-4 w-4 text-event-emerald mx-auto" />
+                        ) : feature.free === false ? (
+                          <X className="h-4 w-4 text-muted-foreground/40 mx-auto" />
+                        ) : (
+                          <span className="text-xs text-muted-foreground">{feature.free}</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-center bg-secondary/50">
+                        {feature.pro === true ? (
+                          <Check className="h-4 w-4 text-event-emerald mx-auto" />
+                        ) : feature.pro === false ? (
+                          <X className="h-4 w-4 text-muted-foreground/40 mx-auto" />
+                        ) : (
+                          <span className="text-xs font-medium">{feature.pro}</span>
+                        )}
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Final CTA */}
       <section className="py-32 px-6">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
           className="max-w-2xl mx-auto text-center"
         >
           <h2 className="font-display text-3xl md:text-5xl mb-6">
