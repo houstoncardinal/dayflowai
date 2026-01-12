@@ -1,23 +1,15 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
-  Calendar, 
-  Sparkles, 
-  Zap, 
-  Layers, 
-  Clock, 
-  Users,
   ArrowRight,
   Check,
-  GripVertical,
-  CalendarDays,
-  Star,
-  Quote,
-  Crown,
+  Calendar,
   Mic,
-  Bell,
   Brain,
-  BarChart3,
+  Bell,
+  Sparkles,
+  ChevronRight,
+  Star,
   Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,283 +17,207 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 
 const features = [
   {
+    icon: Calendar,
+    title: 'Intuitive Scheduling',
+    description: 'Drag and drop events across month, week, and day views with effortless precision.',
+  },
+  {
     icon: Mic,
-    title: 'Voice Control',
-    description: 'Create events hands-free with natural voice commands.',
-    highlight: 'NEW',
+    title: 'Voice Commands',
+    description: 'Create events hands-free. Just speak naturally and let AI handle the rest.',
   },
   {
     icon: Brain,
-    title: 'AI Assistant',
-    description: 'Get intelligent suggestions and schedule optimization.',
-    highlight: 'SMART',
+    title: 'Smart Assistant',
+    description: 'Get intelligent suggestions and let AI optimize your schedule automatically.',
   },
   {
     icon: Bell,
     title: 'Proactive Alerts',
-    description: 'Never miss important deadlines with smart notifications.',
-    highlight: '',
-  },
-  {
-    icon: Layers,
-    title: 'Multiple Views',
-    description: 'Switch between month, week, and day views seamlessly.',
-    highlight: '',
-  },
-  {
-    icon: GripVertical,
-    title: 'Drag & Drop',
-    description: 'Effortlessly reschedule events with intuitive gestures.',
-    highlight: '',
-  },
-  {
-    icon: BarChart3,
-    title: 'Analytics',
-    description: 'Track productivity and optimize your time allocation.',
-    highlight: 'PRO',
+    description: 'Never miss a deadline with smart notifications that know what matters.',
   },
 ];
 
 const testimonials = [
   {
-    name: 'Alexandra Chen',
-    role: 'CEO, TechVentures',
-    content: 'Dayflow has completely transformed how I manage my executive calendar. The voice commands save me hours every week.',
-    rating: 5,
+    quote: "The cleanest calendar app I've ever used. It just works.",
+    author: 'Sarah Chen',
+    role: 'Product Lead at Stripe',
   },
   {
-    name: 'Marcus Williams',
+    quote: 'Voice commands changed how I schedule. Absolute game-changer.',
+    author: 'Marcus Johnson',
+    role: 'Founder, Velocity',
+  },
+  {
+    quote: 'Finally, a calendar that feels like it was designed in 2026.',
+    author: 'Elena Rodriguez',
     role: 'Creative Director',
-    content: 'The most elegant calendar app I\'ve ever used. It\'s like having a personal assistant that actually understands me.',
-    rating: 5,
   },
-  {
-    name: 'Sofia Rodriguez',
-    role: 'Entrepreneur',
-    content: 'The proactive alerts are game-changing. I never miss a deadline or important prep time anymore.',
-    rating: 5,
-  },
-];
-
-const stats = [
-  { value: '50K+', label: 'Active Users' },
-  { value: '2M+', label: 'Events Created' },
-  { value: '4.9', label: 'App Rating' },
-  { value: '99.9%', label: 'Uptime' },
 ];
 
 export default function Landing() {
-  const { scrollY } = useScroll();
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const heroScale = useTransform(scrollY, [0, 400], [1, 0.95]);
-
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
-      {/* Premium Background */}
-      <div className="fixed inset-0 pointer-events-none">
-        {/* Subtle gradient orbs */}
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-primary/8 to-transparent blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-[800px] h-[800px] rounded-full bg-gradient-to-tl from-gold/6 to-transparent blur-3xl" />
-        <div className="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-gradient-to-r from-event-violet/6 to-transparent blur-3xl" />
-        
-        {/* Elegant grid pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.02]"
-          style={{
-            backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-      </div>
-
-      {/* Premium Navigation */}
-      <motion.nav
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="fixed top-0 left-0 right-0 z-50"
-      >
-        <div className="mx-4 mt-4">
-          <div className="max-w-7xl mx-auto glass-premium rounded-2xl px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3 group">
-                <motion.div 
-                  whileHover={{ rotate: 180 }}
-                  transition={{ duration: 0.6 }}
-                  className="h-10 w-10 rounded-xl bg-gradient-gold flex items-center justify-center shadow-gold"
-                >
-                  <CalendarDays className="h-5 w-5 text-white" />
-                </motion.div>
-                <span className="font-display text-xl font-bold text-foreground">
-                  Dayflow
-                </span>
-              </Link>
-              
-              <div className="hidden md:flex items-center gap-8">
-                <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Features
-                </a>
-                <a href="#testimonials" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Reviews
-                </a>
-                <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
-                </a>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <ThemeToggle />
-                <Link to="/demo">
-                  <Button variant="ghost" size="sm" className="hidden sm:flex">
-                    Try Demo
-                  </Button>
-                </Link>
-                <Link to="/auth">
-                  <Button size="sm" className="bg-gradient-gold hover:opacity-90 text-white shadow-gold font-medium">
-                    Get Started
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </Link>
-              </div>
+    <div className="min-h-screen bg-background">
+      {/* Simple Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
+              <Calendar className="h-4 w-4 text-background" />
             </div>
+            <span className="font-semibold text-lg">Dayflow</span>
+          </Link>
+          
+          <div className="hidden md:flex items-center gap-8">
+            <a href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Features
+            </a>
+            <a href="#testimonials" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Reviews
+            </a>
+            <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Pricing
+            </a>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link to="/demo">
+              <Button variant="ghost" size="sm">Demo</Button>
+            </Link>
+            <Link to="/auth">
+              <Button size="sm">
+                Get Started
+                <ArrowRight className="h-4 w-4 ml-1.5" />
+              </Button>
+            </Link>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
-      {/* Hero Section */}
-      <motion.section 
-        style={{ opacity: heroOpacity, scale: heroScale }}
-        className="relative pt-40 pb-32 px-6 z-10"
-      >
-        <div className="max-w-7xl mx-auto">
+      {/* Hero Section - Ultra Clean */}
+      <section className="pt-32 pb-24 px-6">
+        <div className="max-w-6xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center max-w-4xl mx-auto"
+            transition={{ duration: 0.5 }}
+            className="max-w-3xl"
           >
-            {/* Premium badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-premium border-gold mb-8"
-            >
-              <Crown className="h-4 w-4 text-gold" />
-              <span className="text-sm font-medium">Introducing Dayflow 2.0 with Voice AI</span>
-              <span className="shimmer px-2 py-0.5 rounded-full bg-gradient-gold text-white text-xs font-bold">
-                NEW
-              </span>
-            </motion.div>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-sm mb-8">
+              <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">Now with Voice AI</span>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
             
-            <h1 className="font-display text-6xl md:text-8xl font-bold tracking-tight mb-8 leading-[0.95]">
-              <span className="text-foreground">Your time,</span>
+            <h1 className="font-display text-5xl md:text-7xl tracking-tight mb-6 leading-[1.1]">
+              Your calendar,
               <br />
-              <span className="text-gradient-gold">elevated.</span>
+              <span className="text-muted-foreground">simplified.</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed font-light">
-              The premium calendar experience with voice control, AI intelligence, and proactive scheduling that adapts to your life.
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
+              A beautifully minimal calendar with voice control, AI intelligence, and proactive scheduling that adapts to how you work.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
               <Link to="/auth">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button size="lg" className="gap-3 text-lg px-10 h-16 rounded-2xl bg-gradient-gold hover:opacity-90 text-white shadow-gold font-medium">
-                    Start Free
-                    <ArrowRight className="h-5 w-5" />
-                  </Button>
-                </motion.div>
+                <Button size="lg" className="h-12 px-6 rounded-xl">
+                  Start Free
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
               </Link>
               <Link to="/demo">
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Button size="lg" variant="outline" className="gap-3 text-lg px-10 h-16 rounded-2xl border-2 font-medium">
-                    <Play className="h-5 w-5" />
-                    Watch Demo
-                  </Button>
-                </motion.div>
+                <Button size="lg" variant="outline" className="h-12 px-6 rounded-xl">
+                  <Play className="h-4 w-4 mr-2" />
+                  Watch Demo
+                </Button>
               </Link>
             </div>
 
-            {/* Trust indicators */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex items-center justify-center gap-8 mt-12 pt-8 border-t border-border/50"
-            >
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-gold text-gold" />
+            {/* Social Proof */}
+            <div className="flex items-center gap-6 mt-12 pt-8 border-t border-border">
+              <div className="flex -space-x-2">
+                {['SC', 'MJ', 'ER', 'AK'].map((initials, i) => (
+                  <div 
+                    key={i}
+                    className="h-8 w-8 rounded-full bg-secondary border-2 border-background flex items-center justify-center text-xs font-medium"
+                  >
+                    {initials}
+                  </div>
                 ))}
-                <span className="ml-2 text-sm font-medium">4.9/5 rating</span>
               </div>
-              <div className="hidden sm:block h-6 w-px bg-border" />
-              <span className="hidden sm:block text-sm text-muted-foreground">Trusted by 50,000+ professionals</span>
-            </motion.div>
+              <div className="text-sm">
+                <div className="flex items-center gap-1 text-foreground font-medium">
+                  <Star className="h-3.5 w-3.5 fill-current" />
+                  4.9/5
+                </div>
+                <span className="text-muted-foreground">from 2,000+ reviews</span>
+              </div>
+            </div>
           </motion.div>
 
-          {/* Hero Calendar Preview */}
+          {/* Calendar Preview */}
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="mt-20 relative max-w-5xl mx-auto"
+            transition={{ delay: 0.2, duration: 0.6 }}
+            className="mt-20"
           >
-            {/* Glow effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-gold/20 via-primary/20 to-event-violet/20 rounded-[2rem] blur-2xl opacity-50" />
-            
-            <div className="relative glass-premium rounded-3xl shadow-premium overflow-hidden border border-gold/10">
-              {/* Window controls */}
-              <div className="px-6 py-4 border-b border-border/50 flex items-center justify-between">
+            <div className="bg-card rounded-2xl border border-border shadow-clean-xl overflow-hidden">
+              {/* Window Header */}
+              <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-secondary/30">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-event-rose" />
-                  <div className="w-3 h-3 rounded-full bg-gold" />
-                  <div className="w-3 h-3 rounded-full bg-event-emerald" />
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400" />
+                  <div className="w-3 h-3 rounded-full bg-green-400" />
                 </div>
-                <span className="text-sm font-medium text-muted-foreground">January 2026</span>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Mic className="h-4 w-4 text-gold" />
-                  <span>Voice Active</span>
+                <span className="text-xs text-muted-foreground font-medium">January 2026</span>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Mic className="h-3 w-3" />
+                  Voice Active
                 </div>
               </div>
 
-              {/* Calendar content */}
-              <div className="p-8">
-                <div className="grid grid-cols-7 gap-3">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => (
-                    <div key={day} className={`text-center text-sm font-semibold py-3 ${i === 0 || i === 6 ? 'text-event-rose' : 'text-muted-foreground'}`}>
+              {/* Calendar Grid */}
+              <div className="p-6">
+                <div className="grid grid-cols-7 gap-2 mb-4">
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                    <div key={i} className="text-center text-xs font-medium text-muted-foreground py-2">
                       {day}
                     </div>
                   ))}
+                </div>
+                <div className="grid grid-cols-7 gap-2">
                   {Array.from({ length: 35 }).map((_, i) => {
-                    const hasEvent = [8, 12, 15, 22, 26].includes(i);
-                    const eventColors = ['bg-gradient-gold', 'bg-gradient-to-r from-primary to-event-violet', 'bg-gradient-to-r from-event-coral to-event-rose', 'bg-gradient-to-r from-event-teal to-event-emerald', 'bg-gradient-to-r from-event-amber to-gold'];
-                    const eventLabels = ['Board Meeting', 'Design Review', 'Launch Day ✨', 'Team Sync', 'Strategy'];
-                    const eventIndex = [8, 12, 15, 22, 26].indexOf(i);
+                    const dayNum = (i % 31) + 1;
+                    const hasEvent = [5, 9, 14, 18, 23, 27].includes(i);
+                    const isToday = i === 12;
                     
                     return (
                       <motion.div
                         key={i}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.6 + i * 0.01 }}
-                        className={`aspect-square rounded-2xl p-2 text-sm transition-all cursor-pointer hover:ring-2 hover:ring-gold/30
-                          ${hasEvent ? 'bg-secondary/50' : 'hover:bg-secondary/30'}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3 + i * 0.01 }}
+                        className={`aspect-square rounded-lg p-1.5 text-sm flex flex-col
+                          ${isToday ? 'bg-foreground text-background' : 'hover:bg-secondary/50'}
+                          ${hasEvent && !isToday ? 'bg-secondary/50' : ''}
                         `}
                       >
-                        <span className={`font-medium ${hasEvent ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {(i % 31) + 1}
+                        <span className={`font-medium text-xs ${!isToday && !hasEvent ? 'text-muted-foreground' : ''}`}>
+                          {dayNum}
                         </span>
                         {hasEvent && (
-                          <motion.div 
-                            initial={{ x: -10, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.8 + eventIndex * 0.1 }}
-                            className={`mt-1.5 text-[10px] ${eventColors[eventIndex]} text-white rounded-lg px-2 py-1 truncate font-medium shadow-sm`}
-                          >
-                            {eventLabels[eventIndex]}
-                          </motion.div>
+                          <div className={`mt-auto h-1 rounded-full ${
+                            i === 5 ? 'bg-event-teal' : 
+                            i === 9 ? 'bg-event-violet' : 
+                            i === 14 ? 'bg-event-coral' : 
+                            i === 18 ? 'bg-event-amber' :
+                            i === 23 ? 'bg-event-emerald' : 'bg-event-rose'
+                          }`} />
                         )}
                       </motion.div>
                     );
@@ -311,54 +227,29 @@ export default function Landing() {
             </div>
           </motion.div>
         </div>
-      </motion.section>
-
-      {/* Stats Section */}
-      <section className="py-20 px-6 relative z-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="font-display text-4xl md:text-5xl font-bold text-gradient-gold mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm text-muted-foreground font-medium">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-32 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
+      <section id="features" className="py-24 px-6 bg-secondary/30">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="max-w-xl mb-16"
           >
-            <span className="text-sm font-medium text-gold uppercase tracking-wider">Features</span>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mt-4 mb-6">
-              Everything you need,
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Features</span>
+            <h2 className="font-display text-3xl md:text-4xl mt-4 mb-4">
+              Everything you need.
               <br />
-              <span className="text-gradient-gold">nothing you don't.</span>
+              Nothing you don't.
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Powerful features designed with simplicity in mind. Get more done with less effort.
+            <p className="text-muted-foreground">
+              Powerful features designed with simplicity in mind.
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={feature.title}
@@ -366,17 +257,12 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="group relative bg-card rounded-3xl p-8 border border-border hover:border-gold/30 hover-lift"
+                className="bg-card rounded-2xl p-8 border border-border hover-lift"
               >
-                {feature.highlight && (
-                  <span className="absolute top-6 right-6 text-[10px] font-bold px-2 py-1 rounded-full bg-gradient-gold text-white">
-                    {feature.highlight}
-                  </span>
-                )}
-                <div className="h-14 w-14 rounded-2xl bg-gradient-gold/10 flex items-center justify-center mb-6 group-hover:bg-gradient-gold group-hover:shadow-gold transition-all duration-300">
-                  <feature.icon className="h-7 w-7 text-gold group-hover:text-white transition-colors" />
+                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center mb-6">
+                  <feature.icon className="h-5 w-5" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
@@ -385,48 +271,39 @@ export default function Landing() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-32 px-6 relative z-10 bg-secondary/30">
-        <div className="max-w-7xl mx-auto">
+      <section id="testimonials" className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-16"
           >
-            <span className="text-sm font-medium text-gold uppercase tracking-wider">Testimonials</span>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mt-4 mb-6">
-              Loved by <span className="text-gradient-gold">leaders</span>
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Reviews</span>
+            <h2 className="font-display text-3xl md:text-4xl mt-4">
+              Loved by thousands
             </h2>
-            <p className="text-xl text-muted-foreground">
-              See what professionals are saying about Dayflow.
-            </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {testimonials.map((testimonial, index) => (
               <motion.div
-                key={testimonial.name}
+                key={testimonial.author}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-card rounded-3xl p-8 border border-border hover-lift"
+                className="bg-card rounded-2xl p-8 border border-border"
               >
-                <Quote className="h-10 w-10 text-gold/30 mb-6" />
-                <p className="text-lg mb-8 leading-relaxed">"{testimonial.content}"</p>
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-gradient-gold flex items-center justify-center text-white font-bold shadow-gold">
-                    {testimonial.name.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <div>
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">{testimonial.role}</div>
-                  </div>
-                </div>
-                <div className="flex gap-1 mt-6">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-gold text-gold" />
+                <div className="flex gap-0.5 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-foreground text-foreground" />
                   ))}
+                </div>
+                <p className="text-lg mb-6 leading-relaxed">"{testimonial.quote}"</p>
+                <div>
+                  <div className="font-semibold">{testimonial.author}</div>
+                  <div className="text-sm text-muted-foreground">{testimonial.role}</div>
                 </div>
               </motion.div>
             ))}
@@ -435,49 +312,43 @@ export default function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-32 px-6 relative z-10">
-        <div className="max-w-7xl mx-auto">
+      <section id="pricing" className="py-24 px-6 bg-secondary/30">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-16"
           >
-            <span className="text-sm font-medium text-gold uppercase tracking-wider">Pricing</span>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mt-4 mb-6">
-              Simple, <span className="text-gradient-gold">transparent</span>
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Pricing</span>
+            <h2 className="font-display text-3xl md:text-4xl mt-4">
+              Simple pricing
             </h2>
-            <p className="text-xl text-muted-foreground">
-              Start free. Upgrade when you're ready.
-            </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 max-w-4xl mx-auto gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
             {/* Free Plan */}
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-card rounded-3xl p-10 border border-border hover-lift"
+              className="bg-card rounded-2xl p-8 border border-border"
             >
-              <h3 className="text-2xl font-bold mb-2">Free</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="font-display text-5xl font-bold">$0</span>
+              <h3 className="text-xl font-semibold mb-1">Free</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold">$0</span>
                 <span className="text-muted-foreground">/month</span>
               </div>
-              <p className="text-muted-foreground mb-8">Perfect for getting started</p>
-              <ul className="space-y-4 mb-10">
-                {['Unlimited events', 'All calendar views', 'Drag & drop scheduling', 'Real-time sync', 'Basic AI assistant'].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <div className="h-5 w-5 rounded-full bg-event-emerald/20 flex items-center justify-center flex-shrink-0">
-                      <Check className="h-3 w-3 text-event-emerald" />
-                    </div>
-                    <span>{item}</span>
+              <ul className="space-y-3 mb-8">
+                {['Unlimited events', 'All calendar views', 'Drag & drop', 'Real-time sync'].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm">
+                    <Check className="h-4 w-4 text-event-emerald" />
+                    {item}
                   </li>
                 ))}
               </ul>
               <Link to="/auth">
-                <Button variant="outline" className="w-full h-14 text-lg rounded-2xl border-2 font-medium">
+                <Button variant="outline" className="w-full h-11 rounded-xl">
                   Get Started
                 </Button>
               </Link>
@@ -485,33 +356,30 @@ export default function Landing() {
 
             {/* Pro Plan */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="relative bg-card rounded-3xl p-10 border-2 border-gold/50 shadow-gold hover-lift"
+              transition={{ delay: 0.1 }}
+              className="bg-foreground text-background rounded-2xl p-8 relative"
             >
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-gold text-white text-sm font-bold px-6 py-2 rounded-full shadow-gold">
-                <Crown className="h-4 w-4 inline mr-2" />
-                Most Popular
+              <div className="absolute top-4 right-4 text-xs font-medium bg-background text-foreground px-2 py-1 rounded-full">
+                Popular
               </div>
-              <h3 className="text-2xl font-bold mb-2">Pro</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="font-display text-5xl font-bold text-gradient-gold">$9</span>
-                <span className="text-muted-foreground">/month</span>
+              <h3 className="text-xl font-semibold mb-1">Pro</h3>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="text-4xl font-bold">$9</span>
+                <span className="text-background/60">/month</span>
               </div>
-              <p className="text-muted-foreground mb-8">For power users who want more</p>
-              <ul className="space-y-4 mb-10">
-                {['Everything in Free', 'Voice control', 'Proactive alerts', 'Advanced analytics', 'Calendar integrations', 'Priority support'].map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <div className="h-5 w-5 rounded-full bg-gradient-gold flex items-center justify-center flex-shrink-0">
-                      <Check className="h-3 w-3 text-white" />
-                    </div>
-                    <span>{item}</span>
+              <ul className="space-y-3 mb-8">
+                {['Everything in Free', 'Voice commands', 'AI assistant', 'Proactive alerts', 'Analytics dashboard'].map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm">
+                    <Check className="h-4 w-4" />
+                    {item}
                   </li>
                 ))}
               </ul>
               <Link to="/auth">
-                <Button className="w-full h-14 text-lg rounded-2xl bg-gradient-gold hover:opacity-90 text-white shadow-gold font-medium">
+                <Button className="w-full h-11 rounded-xl bg-background text-foreground hover:bg-background/90">
                   Start Free Trial
                 </Button>
               </Link>
@@ -521,64 +389,47 @@ export default function Landing() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-32 px-6 relative z-10">
+      <section className="py-32 px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center"
+          className="max-w-2xl mx-auto text-center"
         >
-          <motion.div
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="inline-block mb-8"
-          >
-            <div className="h-20 w-20 rounded-2xl bg-gradient-gold flex items-center justify-center shadow-gold mx-auto">
-              <CalendarDays className="h-10 w-10 text-white" />
-            </div>
-          </motion.div>
-          <h2 className="font-display text-4xl md:text-6xl font-bold mb-6">
-            Ready to take control
+          <h2 className="font-display text-3xl md:text-5xl mb-6">
+            Ready to simplify
             <br />
-            <span className="text-gradient-gold">of your time?</span>
+            your schedule?
           </h2>
-          <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Join thousands of professionals who've transformed their productivity with Dayflow.
+          <p className="text-lg text-muted-foreground mb-10">
+            Join thousands of professionals who've upgraded their productivity.
           </p>
           <Link to="/auth">
-            <motion.div 
-              whileHover={{ scale: 1.02 }} 
-              whileTap={{ scale: 0.98 }}
-              className="inline-block"
-            >
-              <Button size="lg" className="gap-3 text-lg px-12 h-16 rounded-2xl bg-gradient-gold hover:opacity-90 text-white shadow-gold font-medium">
-                Get Started Free
-                <ArrowRight className="h-5 w-5" />
-              </Button>
-            </motion.div>
+            <Button size="lg" className="h-12 px-8 rounded-xl">
+              Get Started Free
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
           </Link>
         </motion.div>
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-border relative z-10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-gold flex items-center justify-center shadow-gold">
-                <CalendarDays className="h-5 w-5 text-white" />
-              </div>
-              <span className="font-display text-xl font-bold">Dayflow</span>
+      <footer className="py-12 px-6 border-t border-border">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-foreground flex items-center justify-center">
+              <Calendar className="h-3.5 w-3.5 text-background" />
             </div>
-            <div className="flex items-center gap-8 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              © 2026 Dayflow. Crafted with precision.
-            </p>
+            <span className="font-semibold">Dayflow</span>
           </div>
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+            <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            © 2026 Dayflow
+          </p>
         </div>
       </footer>
     </div>
