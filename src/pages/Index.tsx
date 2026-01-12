@@ -14,6 +14,8 @@ import { AgentHub } from '@/components/AgentHub';
 import { VoiceAgent } from '@/components/VoiceAgent';
 import { DailyBriefing } from '@/components/DailyBriefing';
 import { ProactiveAlertBanner } from '@/components/ProactiveAlertBanner';
+import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
+import { CalendarSync } from '@/components/CalendarSync';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useProactiveAlerts, ProactiveAlert } from '@/hooks/useProactiveAlerts';
@@ -21,6 +23,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { CalendarEvent } from '@/types/calendar';
+import { BarChart3, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
@@ -42,6 +46,10 @@ const Index = () => {
   
   // Current proactive alert
   const [currentAlert, setCurrentAlert] = useState<ProactiveAlert | null>(null);
+  
+  // Analytics and Sync modals
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showCalendarSync, setShowCalendarSync] = useState(false);
   
   const { events, loading: eventsLoading, addEvent, deleteEvent, moveEvent } = useEvents();
   
@@ -119,6 +127,21 @@ const Index = () => {
     await addEvent(event);
   };
 
+  // Handler for imported events from calendar sync
+  const handleImportEvents = async (importedEvents: any[]) => {
+    for (const event of importedEvents) {
+      await addEvent({
+        title: event.title,
+        description: event.description,
+        event_date: event.event_date,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        color: event.color || 'teal',
+        all_day: event.all_day || false,
+      });
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
@@ -158,8 +181,24 @@ const Index = () => {
         <OnboardingTour onComplete={handleOnboardingComplete} />
       )}
 
-      {/* Theme Toggle - Fixed Position */}
-      <div className="fixed top-4 right-4 z-40">
+      {/* Theme Toggle and Quick Actions - Fixed Position */}
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => setShowCalendarSync(true)}
+          title="Calendar Sync"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="outline" 
+          size="icon" 
+          onClick={() => setShowAnalytics(true)}
+          title="Analytics"
+        >
+          <BarChart3 className="h-4 w-4" />
+        </Button>
         <ThemeToggle />
       </div>
 
@@ -227,6 +266,21 @@ const Index = () => {
 
       {/* Voice Agent - ElevenLabs */}
       <VoiceAgent events={events} onCreateEvent={handleVoiceCreateEvent} />
+
+      {/* Analytics Dashboard */}
+      <AnalyticsDashboard 
+        events={events} 
+        isOpen={showAnalytics} 
+        onClose={() => setShowAnalytics(false)} 
+      />
+
+      {/* Calendar Sync Modal */}
+      <CalendarSync 
+        events={events} 
+        isOpen={showCalendarSync} 
+        onClose={() => setShowCalendarSync(false)}
+        onImportEvents={handleImportEvents}
+      />
     </div>
   );
 };
