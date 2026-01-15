@@ -13,6 +13,7 @@ import {
   Star,
   Play,
   HelpCircle,
+  Menu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -22,6 +23,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import heroIllustration from '@/assets/hero-illustration.png';
 
 const faqs = [
@@ -111,12 +117,12 @@ export default function Landing() {
     <div className="min-h-screen bg-background">
       {/* Simple Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
-              <Calendar className="h-4 w-4 text-background" />
+        <div className="max-w-6xl mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="h-7 w-7 md:h-8 md:w-8 rounded-lg bg-foreground flex items-center justify-center">
+              <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4 text-background" />
             </div>
-            <span className="font-semibold text-lg">Dayflow</span>
+            <span className="font-semibold text-base md:text-lg">Dayflow</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-8">
@@ -131,23 +137,57 @@ export default function Landing() {
             </a>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <ThemeToggle />
-            <Link to="/demo">
+            <Link to="/demo" className="hidden sm:block">
               <Button variant="ghost" size="sm">Demo</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm">
-                Get Started
-                <ArrowRight className="h-4 w-4 ml-1.5" />
+              <Button size="sm" className="h-8 md:h-9 px-3 md:px-4">
+                <span className="hidden sm:inline">Get Started</span>
+                <span className="sm:hidden">Start</span>
+                <ArrowRight className="h-4 w-4 ml-1 md:ml-1.5" />
               </Button>
             </Link>
+            
+            {/* Mobile menu */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden h-8 w-8">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64">
+                <nav className="flex flex-col gap-4 mt-8">
+                  <a href="#features" className="text-lg font-medium hover:text-primary transition-colors">
+                    Features
+                  </a>
+                  <a href="#testimonials" className="text-lg font-medium hover:text-primary transition-colors">
+                    Reviews
+                  </a>
+                  <a href="#pricing" className="text-lg font-medium hover:text-primary transition-colors">
+                    Pricing
+                  </a>
+                  <a href="#faq" className="text-lg font-medium hover:text-primary transition-colors">
+                    FAQ
+                  </a>
+                  <div className="border-t pt-4 mt-2">
+                    <Link to="/demo">
+                      <Button variant="outline" className="w-full mb-2">Demo</Button>
+                    </Link>
+                    <Link to="/auth">
+                      <Button className="w-full">Get Started</Button>
+                    </Link>
+                  </div>
+                </nav>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
 
       {/* Hero Section with Illustration */}
-      <section className="pt-32 pb-24 px-6 overflow-hidden">
+      <section className="pt-24 md:pt-32 pb-16 md:pb-24 px-4 md:px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Content */}

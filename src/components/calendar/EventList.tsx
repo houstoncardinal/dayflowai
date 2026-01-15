@@ -37,11 +37,11 @@ export function EventList({ selectedDate, events, onDeleteEvent }: EventListProp
   });
 
   return (
-    <div className="flex-1 p-4 overflow-auto">
+    <div className="flex-1 p-3 md:p-4 overflow-auto">
       <h3 className="text-sm font-semibold mb-1">
         {selectedDate ? format(selectedDate, 'EEEE') : 'Select a day'}
       </h3>
-      <p className="text-xs text-muted-foreground mb-4">
+      <p className="text-xs text-muted-foreground mb-3 md:mb-4">
         {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : ''}
       </p>
 
@@ -50,7 +50,7 @@ export function EventList({ selectedDate, events, onDeleteEvent }: EventListProp
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm text-muted-foreground text-center py-8"
+            className="text-sm text-muted-foreground text-center py-6 md:py-8"
           >
             No events scheduled
           </motion.p>
@@ -64,12 +64,12 @@ export function EventList({ selectedDate, events, onDeleteEvent }: EventListProp
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ delay: index * 0.05 }}
                 className={cn(
-                  'group relative p-3 rounded-lg border-l-4 transition-colors',
+                  'group relative p-2.5 md:p-3 rounded-lg border-l-4 transition-colors',
                   colorBorderClasses[event.color],
                   colorBgClasses[event.color]
                 )}
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate">{event.title}</h4>
                     {event.start_time && (
@@ -91,7 +91,7 @@ export function EventList({ selectedDate, events, onDeleteEvent }: EventListProp
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-6 w-6 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                     onClick={() => onDeleteEvent(event.id)}
                   >
                     <Trash2 className="h-3 w-3 text-destructive" />

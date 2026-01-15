@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 interface DraggableEventProps {
   event: CalendarEvent;
   showTime?: boolean;
+  compact?: boolean;
 }
 
 const colorClasses: Record<EventColor, string> = {
@@ -18,7 +19,7 @@ const colorClasses: Record<EventColor, string> = {
   rose: 'bg-event-rose',
 };
 
-export function DraggableEvent({ event, showTime = false }: DraggableEventProps) {
+export function DraggableEvent({ event, showTime = false, compact = false }: DraggableEventProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: event.id,
     data: { event },
@@ -40,12 +41,13 @@ export function DraggableEvent({ event, showTime = false }: DraggableEventProps)
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
-        'truncate rounded-md px-2 py-0.5 text-xs font-medium text-white cursor-grab active:cursor-grabbing transition-shadow',
+        'truncate rounded-md font-medium text-white cursor-grab active:cursor-grabbing transition-shadow',
+        compact ? 'px-1 py-0 text-[10px]' : 'px-2 py-0.5 text-xs',
         colorClasses[event.color],
         isDragging && 'shadow-lg opacity-90 ring-2 ring-primary ring-offset-1'
       )}
     >
-      {showTime && event.start_time && (
+      {showTime && event.start_time && !compact && (
         <span className="opacity-75 mr-1">{event.start_time}</span>
       )}
       {event.title}

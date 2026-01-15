@@ -5,8 +5,10 @@ import { DayInfo, CalendarEvent } from '@/types/calendar';
 import { DroppableDay } from './DroppableDay';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAYS_SHORT = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 interface CalendarGridProps {
   days: DayInfo[];
@@ -17,6 +19,7 @@ interface CalendarGridProps {
 
 export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent }: CalendarGridProps) {
   const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
+  const isMobile = useIsMobile();
 
   const handleDragStart = (event: any) => {
     setActiveEvent(event.active.data.current?.event);
@@ -34,18 +37,20 @@ export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent }: 
     onMoveEvent(eventId, newDate);
   };
 
+  const weekdayLabels = isMobile ? WEEKDAYS_SHORT : WEEKDAYS;
+
   return (
     <DndContext 
       collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="grid grid-cols-7 gap-1 mb-2">
-          {WEEKDAYS.map((day) => (
+      <div className="flex-1 p-2 md:p-4 overflow-auto">
+        <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-1 md:mb-2">
+          {weekdayLabels.map((day, index) => (
             <div
-              key={day}
-              className="py-2 text-center text-sm font-medium text-muted-foreground"
+              key={index}
+              className="py-1 md:py-2 text-center text-xs md:text-sm font-medium text-muted-foreground"
             >
               {day}
             </div>
@@ -55,7 +60,7 @@ export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent }: 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
-          className="grid grid-cols-7 gap-1"
+          className="grid grid-cols-7 gap-0.5 md:gap-1"
         >
           {days.map((day) => (
             <DroppableDay
