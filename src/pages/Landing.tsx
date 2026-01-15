@@ -12,10 +12,44 @@ import {
   ChevronRight,
   Star,
   Play,
+  HelpCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import heroIllustration from '@/assets/hero-illustration.png';
+
+const faqs = [
+  {
+    question: 'How does the free trial work?',
+    answer: 'Start with our Free plan at no cost. When you\'re ready to unlock Pro features like voice commands and advanced AI, you can upgrade anytime. Your first 14 days of Pro are free.',
+  },
+  {
+    question: 'Can I sync with Google Calendar or Outlook?',
+    answer: 'Yes! Pro users can seamlessly sync with Google Calendar, Outlook, and Apple Calendar. All your events stay in sync in real-time across all platforms.',
+  },
+  {
+    question: 'How does the AI assistant work?',
+    answer: 'Our AI analyzes your scheduling patterns to suggest optimal meeting times, automatically reschedule conflicts, and provide smart reminders. It learns from your preferences over time.',
+  },
+  {
+    question: 'Is my data secure?',
+    answer: 'Absolutely. We use bank-level encryption (AES-256) for all data. Your calendar data is never sold or shared with third parties. We\'re SOC 2 Type II certified.',
+  },
+  {
+    question: 'Can I cancel my subscription anytime?',
+    answer: 'Yes, you can cancel your Pro subscription at any time with no questions asked. You\'ll retain access until the end of your billing period.',
+  },
+  {
+    question: 'Does voice control work offline?',
+    answer: 'Voice commands require an internet connection for AI processing. However, all your calendar data is cached locally so you can view and edit events offline.',
+  },
+];
 
 const features = [
   {
@@ -427,8 +461,58 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section id="faq" className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">FAQ</span>
+            <h2 className="font-display text-3xl md:text-4xl mt-4 mb-4">
+              Common questions
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Everything you need to know about Dayflow.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+          >
+            <Accordion type="single" collapsible className="w-full">
+              {faqs.map((faq, index) => (
+                <AccordionItem 
+                  key={index} 
+                  value={`item-${index}`}
+                  className="border-b border-border"
+                >
+                  <AccordionTrigger className="text-left py-5 hover:no-underline group">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-secondary flex items-center justify-center shrink-0 group-hover:bg-secondary/80 transition-colors">
+                        <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                      <span className="font-medium">{faq.question}</span>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pl-11 pb-5">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Final CTA */}
-      <section className="py-32 px-6">
+      <section className="py-32 px-6 bg-secondary/30">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
