@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
 import { CalendarGrid } from '@/components/calendar/CalendarGrid';
 import { WeekView } from '@/components/calendar/WeekView';
@@ -21,10 +21,11 @@ import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useProactiveAlerts, ProactiveAlert } from '@/hooks/useProactiveAlerts';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, X, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -32,10 +33,17 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem('dayflow-app-onboarding-complete');
@@ -219,24 +227,48 @@ const Index = () => {
 
         {/* Premium Header Bar */}
         <div className="fixed top-0 left-0 right-0 z-40 h-14 glass-premium border-b border-border/50">
-          <div className="flex items-center justify-between h-full px-4">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-gradient-gold flex items-center justify-center shadow-gold">
+          <div className="flex items-center justify-between h-full px-3 md:px-4">
+            {/* Left: Menu button (mobile) + Logo */}
+            <div className="flex items-center gap-2 md:gap-3">
+              {/* Mobile sidebar toggle */}
+              {isMobile && (
+                <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="p-0 w-80">
+                    <Sidebar
+                      selectedDate={selectedDate}
+                      onSelectDate={(date) => {
+                        setSelectedDate(date);
+                        setIsSidebarOpen(false);
+                      }}
+                      events={selectedDateEvents}
+                      onDeleteEvent={deleteEvent}
+                      className="w-full border-r-0"
+                      showHeader={true}
+                    />
+                  </SheetContent>
+                </Sheet>
+              )}
+              
+              <div className="h-8 w-8 md:h-9 md:w-9 rounded-xl bg-gradient-gold flex items-center justify-center shadow-gold">
                 <CalendarDays className="h-4 w-4 text-white" />
               </div>
-              <span className="font-display text-lg font-bold hidden sm:block">Dayflow</span>
+              <span className="font-display text-base md:text-lg font-bold hidden sm:block">Dayflow</span>
             </div>
 
             {/* Center - Current date */}
-            <div className="absolute left-1/2 transform -translate-x-1/2">
-              <span className="text-sm font-medium text-muted-foreground">
+            <div className="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
+              <span className="text-xs md:text-sm font-medium text-muted-foreground">
                 {format(new Date(), 'EEEE, MMMM d')}
               </span>
             </div>
 
             {/* Right actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 md:gap-2">
               <ThemeToggle />
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -244,7 +276,7 @@ const Index = () => {
                     variant="ghost" 
                     size="icon" 
                     onClick={() => signOut()}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
                   >
                     <LogOut className="h-4 w-4" />
                   </Button>
@@ -257,12 +289,15 @@ const Index = () => {
 
         {/* Main content with top padding for header */}
         <div className="flex flex-1 pt-14">
-          <Sidebar
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-            events={selectedDateEvents}
-            onDeleteEvent={deleteEvent}
-          />
+          {/* Desktop Sidebar - hidden on mobile */}
+          {!isMobile && (
+            <Sidebar
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              events={selectedDateEvents}
+              onDeleteEvent={deleteEvent}
+            />
+          )}
           
           <motion.main
             initial={{ opacity: 0 }}

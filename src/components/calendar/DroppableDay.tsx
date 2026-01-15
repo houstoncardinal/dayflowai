@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DayInfo, EventColor } from '@/types/calendar';
 import { DraggableEvent } from './DraggableEvent';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DroppableDayProps {
   day: DayInfo;
@@ -16,28 +17,29 @@ export function DroppableDay({ day, isSelected, onClick }: DroppableDayProps) {
     id: format(day.date, 'yyyy-MM-dd'),
     data: { date: day.date },
   });
+  const isMobile = useIsMobile();
 
   const dayNumber = format(day.date, 'd');
-  const maxVisibleEvents = 3;
+  const maxVisibleEvents = isMobile ? 2 : 3;
   const visibleEvents = day.events.slice(0, maxVisibleEvents);
   const remainingCount = day.events.length - maxVisibleEvents;
 
   return (
     <motion.div
       ref={setNodeRef}
-      whileHover={{ scale: 1.01 }}
+      whileHover={{ scale: isMobile ? 1 : 1.01 }}
       onClick={onClick}
       className={cn(
-        'relative h-28 p-2 text-left transition-all duration-200 rounded-xl border border-transparent cursor-pointer',
+        'relative h-16 sm:h-20 md:h-28 p-1 md:p-2 text-left transition-all duration-200 rounded-lg md:rounded-xl border border-transparent cursor-pointer',
         'hover:border-border hover:bg-secondary/50',
         day.isCurrentMonth ? 'bg-card' : 'bg-muted/30',
-        isSelected && 'ring-2 ring-primary ring-offset-2 ring-offset-background',
+        isSelected && 'ring-2 ring-primary ring-offset-1 md:ring-offset-2 ring-offset-background',
         isOver && 'bg-primary/10 border-primary'
       )}
     >
       <span
         className={cn(
-          'inline-flex h-7 w-7 items-center justify-center rounded-full text-sm font-medium',
+          'inline-flex h-5 w-5 md:h-7 md:w-7 items-center justify-center rounded-full text-xs md:text-sm font-medium',
           day.isToday && 'bg-primary text-primary-foreground',
           !day.isToday && day.isCurrentMonth && 'text-foreground',
           !day.isToday && !day.isCurrentMonth && 'text-muted-foreground',
@@ -45,13 +47,13 @@ export function DroppableDay({ day, isSelected, onClick }: DroppableDayProps) {
       >
         {dayNumber}
       </span>
-      <div className="mt-1 space-y-1">
+      <div className="mt-0.5 md:mt-1 space-y-0.5 md:space-y-1 overflow-hidden">
         {visibleEvents.map((event) => (
-          <DraggableEvent key={event.id} event={event} />
+          <DraggableEvent key={event.id} event={event} compact={isMobile} />
         ))}
         {remainingCount > 0 && (
-          <span className="text-xs text-muted-foreground px-2">
-            +{remainingCount} more
+          <span className="text-[10px] md:text-xs text-muted-foreground px-1 md:px-2">
+            +{remainingCount}
           </span>
         )}
       </div>
