@@ -12,10 +12,12 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import { AIAssistant } from '@/components/AIAssistant';
 import { AgentHub } from '@/components/AgentHub';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCalendar } from '@/hooks/useCalendar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { CalendarEvent, CalendarView } from '@/types/calendar';
 import { format, addDays, subDays } from 'date-fns';
-import { ArrowRight, Info } from 'lucide-react';
+import { ArrowRight, Info, Menu } from 'lucide-react';
 import { fireEventConfetti } from '@/lib/confetti';
 
 // Demo events for showcasing the app
@@ -98,6 +100,7 @@ const createDemoEvents = (): CalendarEvent[] => {
 
 export default function Demo() {
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [demoEvents, setDemoEvents] = useState<CalendarEvent[]>(createDemoEvents);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem('dayflow-demo-onboarding-complete');
@@ -105,6 +108,7 @@ export default function Demo() {
   const [isFirstEvent, setIsFirstEvent] = useState(() => {
     return !localStorage.getItem('dayflow-demo-first-event');
   });
+  const isMobile = useIsMobile();
   
   const {
     currentDate,
@@ -173,28 +177,56 @@ export default function Demo() {
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-event-coral via-event-violet to-primary text-white py-2 px-4 flex items-center justify-center gap-4 text-sm"
+        className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-event-coral via-event-violet to-primary text-white py-2 px-3 md:px-4 flex items-center justify-between md:justify-center gap-2 md:gap-4 text-xs md:text-sm"
       >
-        <Info className="h-4 w-4" />
-        <span>You're viewing the demo. Events won't be saved.</span>
-        <Link to="/auth">
-          <Button size="sm" variant="secondary" className="gap-1 h-7">
-            Sign up to save
-            <ArrowRight className="h-3 w-3" />
-          </Button>
-        </Link>
-        <div className="absolute right-4">
+        <div className="flex items-center gap-2">
+          {isMobile && (
+            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-white/20">
+                  <Menu className="h-4 w-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-80">
+                <Sidebar
+                  selectedDate={selectedDate}
+                  onSelectDate={(date) => {
+                    setSelectedDate(date);
+                    setIsSidebarOpen(false);
+                  }}
+                  events={demoSelectedDateEvents}
+                  onDeleteEvent={handleDeleteEvent}
+                  className="w-full border-r-0"
+                  showHeader={true}
+                />
+              </SheetContent>
+            </Sheet>
+          )}
+          <Info className="h-4 w-4 hidden sm:block" />
+          <span className="truncate">Demo mode - not saved</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link to="/auth">
+            <Button size="sm" variant="secondary" className="gap-1 h-7 text-xs">
+              <span className="hidden sm:inline">Sign up to save</span>
+              <span className="sm:hidden">Sign up</span>
+              <ArrowRight className="h-3 w-3" />
+            </Button>
+          </Link>
           <ThemeToggle />
         </div>
       </motion.div>
 
       <div className="flex w-full pt-10">
-        <Sidebar
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-          events={demoSelectedDateEvents}
-          onDeleteEvent={handleDeleteEvent}
-        />
+        {/* Desktop Sidebar - hidden on mobile */}
+        {!isMobile && (
+          <Sidebar
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            events={demoSelectedDateEvents}
+            onDeleteEvent={handleDeleteEvent}
+          />
+        )}
         
         <motion.main
           initial={{ opacity: 0 }}
