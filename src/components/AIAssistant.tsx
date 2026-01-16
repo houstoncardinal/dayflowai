@@ -175,15 +175,15 @@ export function AIAssistant({ events }: AIAssistantProps) {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-event-violet via-primary to-event-teal shadow-2xl flex items-center justify-center group"
+            className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-br from-event-violet via-primary to-event-teal shadow-2xl flex items-center justify-center group"
           >
-            <Bot className="h-6 w-6 text-white" />
+            <Bot className="h-5 w-5 md:h-6 md:w-6 text-white" />
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
-              className="absolute -top-1 -right-1 h-4 w-4 bg-event-coral rounded-full flex items-center justify-center"
+              className="absolute -top-1 -right-1 h-3 w-3 md:h-4 md:w-4 bg-event-coral rounded-full flex items-center justify-center"
             >
-              <Sparkles className="h-2.5 w-2.5 text-white" />
+              <Sparkles className="h-2 w-2 md:h-2.5 md:w-2.5 text-white" />
             </motion.div>
           </motion.button>
         )}
@@ -198,11 +198,11 @@ export function AIAssistant({ events }: AIAssistantProps) {
               opacity: 1, 
               scale: 1, 
               y: 0,
-              height: isMinimized ? 'auto' : 500,
+              height: isMinimized ? 'auto' : 'auto',
             }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-96 bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            className="fixed inset-4 md:inset-auto md:bottom-6 md:right-6 z-50 md:w-96 md:h-[500px] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-event-violet via-primary to-event-teal p-4 flex items-center justify-between">
@@ -239,18 +239,18 @@ export function AIAssistant({ events }: AIAssistantProps) {
               <>
                 {/* Messages */}
                 <ScrollArea className="flex-1 p-4" ref={scrollRef}>
-                  {messages.length === 0 ? (
+              {messages.length === 0 ? (
                     <div className="space-y-4">
-                      <div className="text-center py-6">
+                      <div className="text-center py-4 md:py-6">
                         <motion.div
                           animate={{ rotate: [0, 10, -10, 0] }}
                           transition={{ duration: 2, repeat: Infinity }}
-                          className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-event-violet/20 to-primary/20 mb-4"
+                          className="inline-flex items-center justify-center h-12 w-12 md:h-16 md:w-16 rounded-2xl bg-gradient-to-br from-event-violet/20 to-primary/20 mb-3 md:mb-4"
                         >
-                          <Sparkles className="h-8 w-8 text-event-violet" />
+                          <Sparkles className="h-6 w-6 md:h-8 md:w-8 text-event-violet" />
                         </motion.div>
-                        <h4 className="font-semibold text-lg mb-2">Hi! I'm your AI assistant</h4>
-                        <p className="text-muted-foreground text-sm">
+                        <h4 className="font-semibold text-base md:text-lg mb-2">Hi! I'm your AI assistant</h4>
+                        <p className="text-muted-foreground text-xs md:text-sm px-2">
                           I can analyze your schedule, prepare for meetings, and automate tasks.
                         </p>
                       </div>
@@ -264,7 +264,7 @@ export function AIAssistant({ events }: AIAssistantProps) {
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
                               onClick={() => handleQuickAction(action.prompt)}
-                              className="p-3 text-left text-sm bg-secondary/50 hover:bg-secondary rounded-xl transition-colors"
+                              className="p-2 md:p-3 text-left text-xs md:text-sm bg-secondary/50 hover:bg-secondary rounded-xl transition-colors"
                             >
                               {action.label}
                             </motion.button>

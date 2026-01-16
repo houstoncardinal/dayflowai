@@ -90,14 +90,14 @@ export function AgentHub({ events }: AgentHubProps) {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 left-6 z-50 h-14 w-14 rounded-full bg-gradient-to-br from-event-emerald via-event-teal to-primary shadow-2xl flex items-center justify-center group"
+            className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-50 h-12 w-12 md:h-14 md:w-14 rounded-full bg-gradient-to-br from-event-emerald via-event-teal to-primary shadow-2xl flex items-center justify-center group"
           >
-            <Brain className="h-6 w-6 text-white" />
+            <Brain className="h-5 w-5 md:h-6 md:w-6 text-white" />
             {analysis && analysis.automatableTasks.filter(t => t.status === 'pending').length > 0 && (
               <motion.div
                 animate={{ scale: [1, 1.2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="absolute -top-1 -right-1 h-5 w-5 bg-event-coral rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                className="absolute -top-1 -right-1 h-4 w-4 md:h-5 md:w-5 bg-event-coral rounded-full flex items-center justify-center text-[9px] md:text-[10px] font-bold text-white"
               >
                 {analysis.automatableTasks.filter(t => t.status === 'pending').length}
               </motion.div>
@@ -113,7 +113,7 @@ export function AgentHub({ events }: AgentHubProps) {
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
-            className="fixed bottom-6 left-6 z-50 w-[420px] h-[600px] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            className="fixed inset-4 md:inset-auto md:bottom-6 md:left-6 z-50 md:w-[420px] md:h-[600px] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-event-emerald via-event-teal to-primary p-4 flex items-center justify-between">

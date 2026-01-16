@@ -65,26 +65,27 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md max-h-[calc(100vh-2rem)] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">New Event</DialogTitle>
+          <DialogTitle className="text-lg md:text-xl font-semibold">New Event</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Event Title</Label>
+        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+          <div className="space-y-1.5 md:space-y-2">
+            <Label htmlFor="title" className="text-sm">Event Title</Label>
             <Input
               id="title"
               placeholder="What's happening?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               autoFocus
+              className="text-base md:text-sm"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Date</Label>
+          <div className="space-y-1.5 md:space-y-2">
+            <Label className="text-sm">Date</Label>
             <div className="px-3 py-2 rounded-lg bg-secondary text-sm font-medium">
-              {selectedDate ? format(selectedDate, 'EEEE, MMMM d, yyyy') : 'Select a date'}
+              {selectedDate ? format(selectedDate, 'EEE, MMM d, yyyy') : 'Select a date'}
             </div>
           </div>
 
@@ -125,9 +126,9 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
             </motion.div>
           )}
 
-          <div className="space-y-2">
-            <Label>Color</Label>
-            <div className="flex gap-2">
+          <div className="space-y-1.5 md:space-y-2">
+            <Label className="text-sm">Color</Label>
+            <div className="flex gap-2 flex-wrap">
               {COLORS.map((c) => (
                 <motion.button
                   key={c.value}
@@ -136,7 +137,7 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setColor(c.value)}
                   className={cn(
-                    'h-8 w-8 rounded-full transition-all',
+                    'h-7 w-7 md:h-8 md:w-8 rounded-full transition-all',
                     c.className,
                     color === c.value && 'ring-2 ring-offset-2 ring-foreground'
                   )}
@@ -146,22 +147,23 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description (optional)</Label>
+          <div className="space-y-1.5 md:space-y-2">
+            <Label htmlFor="description" className="text-sm">Description (optional)</Label>
             <Textarea
               id="description"
               placeholder="Add notes..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={3}
+              rows={2}
+              className="text-base md:text-sm"
             />
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} className="text-sm">
               Cancel
             </Button>
-            <Button type="submit" disabled={!title.trim() || !selectedDate}>
+            <Button type="submit" disabled={!title.trim() || !selectedDate} className="text-sm">
               Add Event
             </Button>
           </div>
