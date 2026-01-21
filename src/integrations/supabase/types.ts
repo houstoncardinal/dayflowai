@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_tracking: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           all_day: boolean | null
@@ -23,6 +47,9 @@ export type Database = {
           end_time: string | null
           event_date: string
           id: string
+          parent_event_id: string | null
+          recurrence_end_date: string | null
+          recurrence_rule: string | null
           start_time: string | null
           title: string
           updated_at: string
@@ -36,6 +63,9 @@ export type Database = {
           end_time?: string | null
           event_date: string
           id?: string
+          parent_event_id?: string | null
+          recurrence_end_date?: string | null
+          recurrence_rule?: string | null
           start_time?: string | null
           title: string
           updated_at?: string
@@ -49,12 +79,23 @@ export type Database = {
           end_time?: string | null
           event_date?: string
           id?: string
+          parent_event_id?: string | null
+          recurrence_end_date?: string | null
+          recurrence_rule?: string | null
           start_time?: string | null
           title?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_parent_event_id_fkey"
+            columns: ["parent_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -62,6 +103,8 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          notification_enabled: boolean | null
+          notification_minutes_before: number | null
           timezone: string | null
           updated_at: string
           user_id: string
@@ -71,6 +114,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          notification_enabled?: boolean | null
+          notification_minutes_before?: number | null
           timezone?: string | null
           updated_at?: string
           user_id: string
@@ -80,6 +125,8 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          notification_enabled?: boolean | null
+          notification_minutes_before?: number | null
           timezone?: string | null
           updated_at?: string
           user_id?: string

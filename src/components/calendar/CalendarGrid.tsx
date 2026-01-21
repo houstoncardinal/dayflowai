@@ -15,9 +15,10 @@ interface CalendarGridProps {
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
   onMoveEvent: (eventId: string, newDate: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent }: CalendarGridProps) {
+export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent, onEventClick }: CalendarGridProps) {
   const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
   const isMobile = useIsMobile();
 
@@ -68,6 +69,8 @@ export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent }: 
               day={day}
               isSelected={selectedDate ? isSameDay(day.date, selectedDate) : false}
               onClick={() => onSelectDate(day.date)}
+              onEventClick={onEventClick}
+            />
             />
           ))}
         </motion.div>

@@ -12,7 +12,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { CalendarEvent, EventColor } from '@/types/calendar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { CalendarEvent, EventColor, RecurrenceRule } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 
 interface AddEventModalProps {
@@ -31,6 +38,15 @@ const COLORS: { value: EventColor; label: string; className: string }[] = [
   { value: 'rose', label: 'Rose', className: 'bg-event-rose' },
 ];
 
+const RECURRENCE_OPTIONS: { value: RecurrenceRule; label: string }[] = [
+  { value: 'none', label: 'Does not repeat' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'biweekly', label: 'Every 2 weeks' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'yearly', label: 'Yearly' },
+];
+
 export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEventModalProps) {
   const [title, setTitle] = useState('');
   const [startTime, setStartTime] = useState('09:00');
@@ -38,6 +54,8 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
   const [description, setDescription] = useState('');
   const [color, setColor] = useState<EventColor>('teal');
   const [allDay, setAllDay] = useState(false);
+  const [recurrence, setRecurrence] = useState<RecurrenceRule>('none');
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +69,8 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
       description: description.trim() || null,
       color,
       all_day: allDay,
+      recurrence_rule: recurrence === 'none' ? null : recurrence,
+      recurrence_end_date: recurrence !== 'none' && recurrenceEndDate ? recurrenceEndDate : null,
     });
 
     // Reset form
@@ -60,6 +80,8 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
     setDescription('');
     setColor('teal');
     setAllDay(false);
+    setRecurrence('none');
+    setRecurrenceEndDate('');
     onClose();
   };
 
@@ -123,6 +145,39 @@ export function AddEventModal({ isOpen, onClose, onAdd, selectedDate }: AddEvent
                   onChange={(e) => setEndTime(e.target.value)}
                 />
               </div>
+            </motion.div>
+          )}
+
+          <div className="space-y-1.5 md:space-y-2">
+            <Label className="text-sm">Repeat</Label>
+            <Select value={recurrence} onValueChange={(v) => setRecurrence(v as RecurrenceRule)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Does not repeat" />
+              </SelectTrigger>
+              <SelectContent>
+                {RECURRENCE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {recurrence !== 'none' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="space-y-1.5 md:space-y-2"
+            >
+              <Label htmlFor="recurrenceEnd" className="text-sm">Repeat until (optional)</Label>
+              <Input
+                id="recurrenceEnd"
+                type="date"
+                value={recurrenceEndDate}
+                onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                min={selectedDate ? format(selectedDate, 'yyyy-MM-dd') : undefined}
+              />
             </motion.div>
           )}
 

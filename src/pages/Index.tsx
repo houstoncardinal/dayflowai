@@ -7,6 +7,7 @@ import { WeekView } from '@/components/calendar/WeekView';
 import { DayView } from '@/components/calendar/DayView';
 import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
+import { EventModal } from '@/components/calendar/EventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { AIAssistant } from '@/components/AIAssistant';
@@ -20,12 +21,14 @@ import { QuickActions } from '@/components/QuickActions';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useProactiveAlerts, ProactiveAlert } from '@/hooks/useProactiveAlerts';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useAnalyticsTracking } from '@/hooks/useAnalyticsTracking';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut, Menu, X, Calendar } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, X, Calendar, Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -45,6 +48,8 @@ const Index = () => {
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     return !localStorage.getItem('dayflow-app-onboarding-complete');
   });
@@ -69,14 +74,37 @@ const Index = () => {
   // Voice and AI states
   const [isVoiceActive, setIsVoiceActive] = useState(false);
   
-  const { events, loading: eventsLoading, addEvent, deleteEvent, moveEvent } = useEvents();
+  const { 
+    events, 
+    allEvents,
+    loading: eventsLoading, 
+    addEvent, 
+    updateEvent,
+    deleteEvent, 
+    moveEvent,
+    undoDelete,
+    lastDeletedEvent,
+    searchQuery,
+    setSearchQuery,
+    colorFilter,
+    setColorFilter,
+  } = useEvents();
+
+  const { trackEventCreated, trackVoiceCommand } = useAnalyticsTracking();
+  
+  // Notifications
+  const { permission: notificationPermission, requestPermission } = useNotifications({
+    events: allEvents,
+    enabled: !authLoading && !!user,
+    minutesBefore: 15,
+  });
   
   // Proactive alerts hook
   const handleProactiveAlert = useCallback((alert: ProactiveAlert) => {
     setCurrentAlert(alert);
   }, []);
   
-  const { alerts, dismissAlert, dismissAllAlerts } = useProactiveAlerts(events, {
+  const { alerts, dismissAlert, dismissAllAlerts } = useProactiveAlerts(allEvents, {
     enabled: !authLoading && !!user && !showDailyBriefing,
     onAlert: handleProactiveAlert,
   });
@@ -112,12 +140,31 @@ const Index = () => {
         setIsVoiceActive(prev => !prev);
       } else if (e.key === 't' && !e.ctrlKey && !e.metaKey) {
         goToToday();
+      } else if (e.key === 'z' && (e.ctrlKey || e.metaKey) && lastDeletedEvent) {
+        e.preventDefault();
+        undoDelete();
+      } else if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        // Focus search - handled by SearchFilter component
+      } else if (e.key === 'Escape') {
+        setIsEventModalOpen(false);
+        setIsAddEventOpen(false);
+      } else if (e.key === 'ArrowLeft' && !e.ctrlKey && !e.metaKey) {
+        goToPrev();
+      } else if (e.key === 'ArrowRight' && !e.ctrlKey && !e.metaKey) {
+        goToNext();
+      } else if (e.key === '1' && !e.ctrlKey && !e.metaKey) {
+        setView('month');
+      } else if (e.key === '2' && !e.ctrlKey && !e.metaKey) {
+        setView('week');
+      } else if (e.key === '3' && !e.ctrlKey && !e.metaKey) {
+        setView('day');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [goToToday]);
+  }, [goToToday, goToPrev, goToNext, setView, lastDeletedEvent, undoDelete]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -153,6 +200,7 @@ const Index = () => {
 
   const handleAddEvent = async (event: Omit<CalendarEvent, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     await addEvent(event);
+    trackEventCreated(event.title, 'manual');
     
     // Fire confetti on first event creation
     if (isFirstEvent) {
@@ -165,6 +213,14 @@ const Index = () => {
   // Handler for voice-created events
   const handleVoiceCreateEvent = async (event: any) => {
     await addEvent(event);
+    trackEventCreated(event.title, 'voice');
+    trackVoiceCommand(`Create event: ${event.title}`);
+  };
+
+  // Handler for clicking on an event
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+    setIsEventModalOpen(true);
   };
 
   // Handler for imported events from calendar sync
@@ -179,6 +235,7 @@ const Index = () => {
         color: event.color || 'teal',
         all_day: event.all_day || false,
       });
+      trackEventCreated(event.title, 'import');
     }
   };
 
@@ -210,7 +267,7 @@ const Index = () => {
       <div className="flex h-screen bg-background overflow-hidden">
         {/* Daily Briefing Modal */}
         {showDailyBriefing && events.length >= 0 && !showOnboarding && (
-          <DailyBriefing events={events} onDismiss={handleDismissBriefing} />
+          <DailyBriefing events={allEvents} onDismiss={handleDismissBriefing} />
         )}
 
         {/* Proactive Alert Banner */}
@@ -247,6 +304,7 @@ const Index = () => {
                       }}
                       events={selectedDateEvents}
                       onDeleteEvent={deleteEvent}
+                      onEventClick={handleEventClick}
                       className="w-full border-r-0"
                       showHeader={true}
                     />
@@ -269,6 +327,28 @@ const Index = () => {
 
             {/* Right actions */}
             <div className="flex items-center gap-1 md:gap-2">
+              {/* Notification toggle */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={requestPermission}
+                    className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
+                  >
+                    {notificationPermission === 'granted' ? (
+                      <Bell className="h-4 w-4" />
+                    ) : (
+                      <BellOff className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {notificationPermission === 'granted' 
+                    ? 'Notifications enabled' 
+                    : 'Enable notifications'}
+                </TooltipContent>
+              </Tooltip>
               <ThemeToggle />
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -296,6 +376,7 @@ const Index = () => {
               onSelectDate={setSelectedDate}
               events={selectedDateEvents}
               onDeleteEvent={deleteEvent}
+              onEventClick={handleEventClick}
             />
           )}
           
@@ -312,6 +393,10 @@ const Index = () => {
               onNext={goToNext}
               onToday={goToToday}
               onAddEvent={() => setIsAddEventOpen(true)}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              colorFilter={colorFilter}
+              onColorFilterChange={setColorFilter}
             />
             
             {view === 'month' && (
@@ -320,6 +405,7 @@ const Index = () => {
                 selectedDate={selectedDate}
                 onSelectDate={setSelectedDate}
                 onMoveEvent={handleMoveEvent}
+                onEventClick={handleEventClick}
               />
             )}
             
@@ -329,6 +415,7 @@ const Index = () => {
                 selectedDate={selectedDate}
                 onSelectDate={setSelectedDate}
                 onMoveEvent={handleMoveEvent}
+                onEventClick={handleEventClick}
               />
             )}
             
@@ -337,6 +424,7 @@ const Index = () => {
                 currentDate={currentDate}
                 hours={dayHours}
                 onMoveEvent={handleMoveEvent}
+                onEventClick={handleEventClick}
               />
             )}
           </motion.main>
@@ -359,25 +447,41 @@ const Index = () => {
           selectedDate={selectedDate}
         />
 
+        {/* Event Details/Edit Modal */}
+        <EventModal
+          event={selectedEvent}
+          isOpen={isEventModalOpen}
+          onClose={() => {
+            setIsEventModalOpen(false);
+            setSelectedEvent(null);
+          }}
+          onUpdate={updateEvent}
+          onDelete={deleteEvent}
+        />
+
         {/* AI Assistant */}
-        <AIAssistant events={events} />
+        <AIAssistant events={allEvents} />
 
         {/* AI Agent Hub */}
-        <AgentHub events={events} />
+        <AgentHub events={allEvents} />
 
         {/* Voice Agent - ElevenLabs */}
-        <VoiceAgent events={events} onCreateEvent={handleVoiceCreateEvent} />
+        <VoiceAgent 
+          events={allEvents} 
+          onCreateEvent={handleVoiceCreateEvent}
+          onVoiceCommand={trackVoiceCommand}
+        />
 
         {/* Analytics Dashboard */}
         <AnalyticsDashboard 
-          events={events} 
+          events={allEvents} 
           isOpen={showAnalytics} 
           onClose={() => setShowAnalytics(false)} 
         />
 
         {/* Calendar Sync Modal */}
         <CalendarSync 
-          events={events} 
+          events={allEvents} 
           isOpen={showCalendarSync} 
           onClose={() => setShowCalendarSync(false)}
           onImportEvents={handleImportEvents}
