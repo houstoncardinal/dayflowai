@@ -13,6 +13,7 @@ interface WeekViewProps {
   selectedDate: Date | null;
   onSelectDate: (date: Date) => void;
   onMoveEvent: (eventId: string, newDate: string, newTime?: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 function DroppableHourSlot({ 
@@ -51,7 +52,7 @@ function DroppableHourSlot({
   );
 }
 
-export function WeekView({ days, selectedDate, onSelectDate, onMoveEvent }: WeekViewProps) {
+export function WeekView({ days, selectedDate, onSelectDate, onMoveEvent, onEventClick }: WeekViewProps) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;

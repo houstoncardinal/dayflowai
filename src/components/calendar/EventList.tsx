@@ -9,6 +9,7 @@ interface EventListProps {
   selectedDate: Date | null;
   events: CalendarEvent[];
   onDeleteEvent: (id: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 const colorBorderClasses: Record<EventColor, string> = {
@@ -29,7 +30,7 @@ const colorBgClasses: Record<EventColor, string> = {
   rose: 'bg-event-rose/10',
 };
 
-export function EventList({ selectedDate, events, onDeleteEvent }: EventListProps) {
+export function EventList({ selectedDate, events, onDeleteEvent, onEventClick }: EventListProps) {
   const sortedEvents = [...events].sort((a, b) => {
     if (!a.start_time) return 1;
     if (!b.start_time) return -1;
@@ -63,8 +64,9 @@ export function EventList({ selectedDate, events, onDeleteEvent }: EventListProp
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ delay: index * 0.05 }}
+                onClick={() => onEventClick?.(event)}
                 className={cn(
-                  'group relative p-2.5 md:p-3 rounded-lg border-l-4 transition-colors',
+                  'group relative p-2.5 md:p-3 rounded-lg border-l-4 transition-colors cursor-pointer hover:opacity-80',
                   colorBorderClasses[event.color],
                   colorBgClasses[event.color]
                 )}
