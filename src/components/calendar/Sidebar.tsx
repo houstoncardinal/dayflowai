@@ -10,6 +10,7 @@ interface SidebarProps {
   onSelectDate: (date: Date) => void;
   events: CalendarEvent[];
   onDeleteEvent: (id: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
   className?: string;
   showHeader?: boolean;
 }
@@ -19,6 +20,7 @@ export function Sidebar({
   onSelectDate, 
   events, 
   onDeleteEvent,
+  onEventClick,
   className,
   showHeader = true,
 }: SidebarProps) {
@@ -50,6 +52,7 @@ export function Sidebar({
         selectedDate={selectedDate} 
         events={events} 
         onDeleteEvent={onDeleteEvent}
+        onEventClick={onEventClick}
       />
     </motion.aside>
   );

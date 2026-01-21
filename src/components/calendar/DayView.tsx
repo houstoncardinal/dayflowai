@@ -10,6 +10,7 @@ interface DayViewProps {
   currentDate: Date;
   hours: HourSlot[];
   onMoveEvent: (eventId: string, newDate: string, newTime?: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 function DroppableHour({ 
@@ -56,7 +57,7 @@ function DroppableHour({
   );
 }
 
-export function DayView({ currentDate, hours, onMoveEvent }: DayViewProps) {
+export function DayView({ currentDate, hours, onMoveEvent, onEventClick }: DayViewProps) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;

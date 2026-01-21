@@ -1,11 +1,12 @@
 import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { CalendarView } from '@/types/calendar';
+import { CalendarView, EventColor } from '@/types/calendar';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { SearchFilter } from './SearchFilter';
 
 interface CalendarHeaderProps {
   monthLabel: string;
@@ -15,6 +16,10 @@ interface CalendarHeaderProps {
   onNext: () => void;
   onToday: () => void;
   onAddEvent: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+  colorFilter?: EventColor[];
+  onColorFilterChange?: (colors: EventColor[]) => void;
 }
 
 const views: { value: CalendarView; label: string }[] = [
@@ -37,6 +42,10 @@ export function CalendarHeader({
   onNext,
   onToday,
   onAddEvent,
+  searchQuery = '',
+  onSearchChange,
+  colorFilter = [],
+  onColorFilterChange,
 }: CalendarHeaderProps) {
   const location = useLocation();
   const isDemo = location.pathname === '/demo';
@@ -110,6 +119,14 @@ export function CalendarHeader({
       </div>
       
       <div className="flex items-center gap-2 md:gap-3 shrink-0">
+        {onSearchChange && onColorFilterChange && (
+          <SearchFilter
+            searchQuery={searchQuery}
+            onSearchChange={onSearchChange}
+            selectedColors={colorFilter}
+            onColorFilterChange={onColorFilterChange}
+          />
+        )}
         {!isDemo && profile?.display_name && (
           <span className="text-sm text-muted-foreground hidden lg:block">
             Hi, {profile.display_name}

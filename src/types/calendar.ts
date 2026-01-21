@@ -1,5 +1,6 @@
 export type EventColor = 'coral' | 'teal' | 'amber' | 'violet' | 'emerald' | 'rose';
 export type CalendarView = 'month' | 'week' | 'day';
+export type RecurrenceRule = 'none' | 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly';
 
 export interface CalendarEvent {
   id: string;
@@ -11,6 +12,9 @@ export interface CalendarEvent {
   end_time?: string | null;
   color: EventColor;
   all_day?: boolean;
+  recurrence_rule?: string | null;
+  recurrence_end_date?: string | null;
+  parent_event_id?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -34,6 +38,16 @@ export interface Profile {
   display_name?: string | null;
   avatar_url?: string | null;
   timezone?: string | null;
+  notification_enabled?: boolean;
+  notification_minutes_before?: number;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface AnalyticsEvent {
+  id: string;
+  user_id: string;
+  event_type: 'voice_command' | 'automated_task' | 'event_created' | 'event_edited';
+  event_data?: Record<string, any>;
+  created_at: string;
 }
