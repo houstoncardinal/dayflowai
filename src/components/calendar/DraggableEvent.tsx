@@ -8,6 +8,7 @@ interface DraggableEventProps {
   event: CalendarEvent;
   showTime?: boolean;
   compact?: boolean;
+  onClick?: () => void;
 }
 
 const colorClasses: Record<EventColor, string> = {
@@ -19,7 +20,7 @@ const colorClasses: Record<EventColor, string> = {
   rose: 'bg-event-rose',
 };
 
-export function DraggableEvent({ event, showTime = false, compact = false }: DraggableEventProps) {
+export function DraggableEvent({ event, showTime = false, compact = false, onClick }: DraggableEventProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: event.id,
     data: { event },
@@ -38,6 +39,10 @@ export function DraggableEvent({ event, showTime = false, compact = false }: Dra
       style={style}
       {...listeners}
       {...attributes}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.();
+      }}
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(

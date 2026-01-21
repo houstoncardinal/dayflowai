@@ -71,7 +71,6 @@ export function CalendarGrid({ days, selectedDate, onSelectDate, onMoveEvent, on
               onClick={() => onSelectDate(day.date)}
               onEventClick={onEventClick}
             />
-            />
           ))}
         </motion.div>
       </div>

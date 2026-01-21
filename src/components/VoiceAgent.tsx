@@ -62,6 +62,7 @@ interface VoiceAgentProps {
   events: CalendarEvent[];
   onTaskComplete?: (task: AutomationTask) => void;
   onCreateEvent?: (event: any) => Promise<void>;
+  onVoiceCommand?: (command: string) => void;
 }
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
@@ -78,7 +79,7 @@ const EVENT_CREATION_PATTERNS = [
   /appointment/i,
 ];
 
-export function VoiceAgent({ events, onTaskComplete, onCreateEvent }: VoiceAgentProps) {
+export function VoiceAgent({ events, onTaskComplete, onCreateEvent, onVoiceCommand }: VoiceAgentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -108,6 +109,7 @@ export function VoiceAgent({ events, onTaskComplete, onCreateEvent }: VoiceAgent
         // If this is a final result, process it
         if (event.results[event.results.length - 1].isFinal) {
           handleUserSpeech(transcript);
+          onVoiceCommand?.(transcript);
         }
       };
       

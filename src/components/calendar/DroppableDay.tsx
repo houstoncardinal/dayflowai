@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { format, isSameDay } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DayInfo, EventColor } from '@/types/calendar';
+import { DayInfo, CalendarEvent, EventColor } from '@/types/calendar';
 import { DraggableEvent } from './DraggableEvent';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -10,9 +10,10 @@ interface DroppableDayProps {
   day: DayInfo;
   isSelected: boolean;
   onClick: () => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
-export function DroppableDay({ day, isSelected, onClick }: DroppableDayProps) {
+export function DroppableDay({ day, isSelected, onClick, onEventClick }: DroppableDayProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: format(day.date, 'yyyy-MM-dd'),
     data: { date: day.date },
@@ -49,7 +50,7 @@ export function DroppableDay({ day, isSelected, onClick }: DroppableDayProps) {
       </span>
       <div className="mt-0.5 md:mt-1 space-y-0.5 md:space-y-1 overflow-hidden">
         {visibleEvents.map((event) => (
-          <DraggableEvent key={event.id} event={event} compact={isMobile} />
+          <DraggableEvent key={event.id} event={event} compact={isMobile} onClick={() => onEventClick?.(event)} />
         ))}
         {remainingCount > 0 && (
           <span className="text-[10px] md:text-xs text-muted-foreground px-1 md:px-2">
