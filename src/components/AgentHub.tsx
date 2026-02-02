@@ -16,16 +16,19 @@ import {
   Loader2,
   Copy,
   Check,
-  RefreshCw
+  RefreshCw,
+  ArrowRight,
+  Link2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { CalendarEvent } from '@/types/calendar';
-import { AutomationTask, Agent, ScheduleAnalysis } from '@/types/agent';
+import { AutomationTask, Agent, ScheduleAnalysis, AGENT_DEFINITIONS } from '@/types/agent';
 import { useAgents } from '@/hooks/useAgents';
 import { cn } from '@/lib/utils';
+import ReactMarkdown from 'react-markdown';
 
 interface AgentHubProps {
   events: CalendarEvent[];
@@ -401,8 +404,21 @@ export function AgentHub({ events }: AgentHubProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="space-y-3"
+                        className="space-y-4"
                       >
+                        {/* Agent Collaboration Info */}
+                        <div className="bg-gradient-to-r from-event-violet/10 to-event-teal/10 rounded-xl p-4 border border-event-violet/20">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Link2 className="h-4 w-4 text-event-violet" />
+                            <span className="text-sm font-medium">Agent Collaboration</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Agents work as a team: Research gathers context → Prep creates agenda → 
+                            Docs captures notes → Follow-up extracts actions
+                          </p>
+                        </div>
+
+                        {/* Agent Cards */}
                         {agents.map((agent, i) => (
                           <motion.div
                             key={agent.id}
@@ -410,39 +426,60 @@ export function AgentHub({ events }: AgentHubProps) {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.05 }}
                             className={cn(
-                              "rounded-xl p-4 border transition-colors",
-                              agent.status === 'working' && "bg-primary/5 border-primary/30",
+                              "rounded-xl p-4 border transition-all duration-300",
+                              agent.status === 'working' && "bg-primary/5 border-primary/30 shadow-md",
                               agent.status === 'completed' && "bg-event-emerald/5 border-event-emerald/30",
-                              agent.status === 'idle' && "bg-secondary/30 border-border"
+                              agent.status === 'idle' && "bg-secondary/30 border-border hover:border-primary/30"
                             )}
                           >
                             <div className="flex items-start gap-3">
-                              <div className="text-2xl">{agent.icon}</div>
+                              <div className={cn(
+                                "text-2xl transition-transform duration-300",
+                                agent.status === 'working' && "animate-pulse"
+                              )}>
+                                {agent.icon}
+                              </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <span className="font-medium">{agent.name}</span>
                                   {agent.status === 'working' && (
-                                    <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                    <div className="flex items-center gap-1 text-xs text-primary">
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                      <span>Working...</span>
+                                    </div>
+                                  )}
+                                  {agent.status === 'completed' && (
+                                    <CheckCircle2 className="h-4 w-4 text-event-emerald" />
                                   )}
                                   {agent.completedTasks > 0 && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      {agent.completedTasks} done
+                                    <Badge variant="secondary" className="text-xs ml-auto">
+                                      {agent.completedTasks} completed
                                     </Badge>
                                   )}
                                 </div>
                                 <p className="text-xs text-muted-foreground mt-1">{agent.description}</p>
                                 
                                 {agent.currentTask && (
-                                  <div className="mt-2 p-2 bg-background rounded-lg">
-                                    <p className="text-xs font-medium">Working on:</p>
-                                    <p className="text-xs text-muted-foreground truncate">
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="mt-3 p-3 bg-primary/10 rounded-lg border border-primary/20"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Sparkles className="h-3 w-3 text-primary" />
+                                      <p className="text-xs font-medium text-primary">Currently executing:</p>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1 truncate">
                                       {agent.currentTask.title}
                                     </p>
-                                  </div>
+                                    <div className="mt-2">
+                                      <Progress value={undefined} className="h-1 bg-primary/20" />
+                                    </div>
+                                  </motion.div>
                                 )}
                                 
-                                <div className="flex flex-wrap gap-1 mt-2">
-                                  {agent.capabilities.slice(0, 3).map((cap, j) => (
+                                <div className="flex flex-wrap gap-1.5 mt-3">
+                                  {agent.capabilities.slice(0, 4).map((cap, j) => (
                                     <span
                                       key={j}
                                       className="text-[10px] px-2 py-0.5 bg-secondary rounded-full text-muted-foreground"
@@ -450,11 +487,23 @@ export function AgentHub({ events }: AgentHubProps) {
                                       {cap}
                                     </span>
                                   ))}
+                                  {agent.capabilities.length > 4 && (
+                                    <span className="text-[10px] px-2 py-0.5 text-muted-foreground">
+                                      +{agent.capabilities.length - 4} more
+                                    </span>
+                                  )}
                                 </div>
                               </div>
                             </div>
                           </motion.div>
                         ))}
+                        
+                        {/* Powered by AI notice */}
+                        <div className="text-center py-2">
+                          <p className="text-xs text-muted-foreground">
+                            Powered by <span className="font-medium">Lovable AI</span> • Gemini 3 Flash
+                          </p>
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -500,8 +549,8 @@ export function AgentHub({ events }: AgentHubProps) {
                     </div>
                   </div>
                   <ScrollArea className="flex-1 p-4">
-                    <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
-                      {selectedTask.output}
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown>{selectedTask.output || ''}</ReactMarkdown>
                     </div>
                   </ScrollArea>
                 </motion.div>
