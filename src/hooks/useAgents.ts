@@ -454,6 +454,12 @@ function formatToolOutput(tool: string, data: any): string {
       return formatDocumentation(data);
     case 'create_communication':
       return formatCommunication(data);
+    case 'prioritize_tasks':
+      return formatPrioritization(data);
+    case 'enrich_context':
+      return formatContextEnrichment(data);
+    case 'orchestrate_agents':
+      return formatOrchestration(data);
     default:
       return JSON.stringify(data, null, 2);
   }
@@ -462,12 +468,20 @@ function formatToolOutput(tool: string, data: any): string {
 function formatAgenda(data: any): string {
   let output = `# 📋 ${data.title || 'Meeting Agenda'}\n\n`;
   
+  if (data.meeting_type) {
+    output += `**Type:** ${data.meeting_type.replace('_', ' ').toUpperCase()}\n`;
+  }
   if (data.duration_minutes) {
     output += `**Duration:** ${data.duration_minutes} minutes\n\n`;
   }
   
+  // AI Reasoning insight
+  if (data.reasoning) {
+    output += `> 💭 *${data.reasoning.slice(0, 200)}${data.reasoning.length > 200 ? '...' : ''}*\n\n`;
+  }
+  
   if (data.objectives?.length > 0) {
-    output += `## Objectives\n`;
+    output += `## 🎯 Objectives\n`;
     data.objectives.forEach((obj: string) => {
       output += `- ${obj}\n`;
     });
@@ -475,19 +489,50 @@ function formatAgenda(data: any): string {
   }
   
   if (data.agenda_items?.length > 0) {
-    output += `## Agenda\n\n`;
+    output += `## 📝 Agenda\n\n`;
     data.agenda_items.forEach((item: any, i: number) => {
       output += `### ${i + 1}. ${item.topic} (${item.duration_minutes} min)\n`;
       if (item.owner) output += `**Owner:** ${item.owner}\n`;
-      if (item.notes) output += `${item.notes}\n`;
+      if (item.objective) output += `**Objective:** ${item.objective}\n`;
+      if (item.discussion_points?.length > 0) {
+        output += `**Discussion Points:**\n`;
+        item.discussion_points.forEach((point: string) => {
+          output += `  - ${point}\n`;
+        });
+      }
+      if (item.expected_outcome) output += `**Expected Outcome:** ${item.expected_outcome}\n`;
       output += '\n';
     });
   }
   
   if (data.preparation_needed?.length > 0) {
-    output += `## Pre-Meeting Preparation\n`;
-    data.preparation_needed.forEach((prep: string) => {
-      output += `- [ ] ${prep}\n`;
+    output += `## ✅ Pre-Meeting Preparation\n`;
+    data.preparation_needed.forEach((prep: any) => {
+      if (typeof prep === 'string') {
+        output += `- [ ] ${prep}\n`;
+      } else {
+        const icon = prep.importance === 'critical' ? '🔴' : prep.importance === 'important' ? '🟡' : '🟢';
+        output += `- [ ] ${icon} ${prep.task}`;
+        if (prep.assignee) output += ` *(${prep.assignee})*`;
+        if (prep.deadline) output += ` — by ${prep.deadline}`;
+        output += '\n';
+      }
+    });
+    output += '\n';
+  }
+
+  if (data.success_metrics?.length > 0) {
+    output += `## 📊 Success Metrics\n`;
+    data.success_metrics.forEach((metric: string) => {
+      output += `- ${metric}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.potential_challenges?.length > 0) {
+    output += `## ⚠️ Potential Challenges\n`;
+    data.potential_challenges.forEach((challenge: string) => {
+      output += `- ${challenge}\n`;
     });
   }
   
@@ -626,18 +671,230 @@ function formatDocumentation(data: any): string {
 function formatCommunication(data: any): string {
   let output = `# 💬 ${data.type?.charAt(0).toUpperCase() + data.type?.slice(1) || 'Communication'}\n\n`;
   output += `**Subject:** ${data.subject}\n`;
+  if (data.channel) output += `**Channel:** ${data.channel}\n`;
   if (data.urgency) output += `**Urgency:** ${data.urgency}\n`;
-  if (data.recipients_context) output += `**To:** ${data.recipients_context}\n`;
-  output += '\n---\n\n';
-  output += `${data.body}\n\n`;
+  if (data.recipient_analysis?.relationship) output += `**Relationship:** ${data.recipient_analysis.relationship}\n`;
+  output += '\n';
+
+  // AI Reasoning
+  if (data.reasoning) {
+    output += `> 💭 *${data.reasoning.slice(0, 150)}${data.reasoning.length > 150 ? '...' : ''}*\n\n`;
+  }
+
+  output += `---\n\n`;
   
-  if (data.call_to_action) {
-    output += `---\n**Call to Action:** ${data.call_to_action}\n`;
+  if (data.structure) {
+    output += `${data.structure.opening}\n\n`;
+    output += `${data.structure.context || ''}\n\n`;
+    output += `${data.structure.main_message}\n\n`;
+    if (data.structure.supporting_points?.length > 0) {
+      data.structure.supporting_points.forEach((point: string) => {
+        output += `- ${point}\n`;
+      });
+      output += '\n';
+    }
+    output += `**${data.structure.call_to_action}**\n\n`;
+    output += `${data.structure.closing}\n`;
+  } else if (data.full_body) {
+    output += `${data.full_body}\n`;
+  } else if (data.body) {
+    output += `${data.body}\n`;
   }
   
+  if (data.follow_up_plan) {
+    output += `\n---\n📅 **Follow-up Plan:** If no response by ${data.follow_up_plan.if_no_response_by}, ${data.follow_up_plan.follow_up_action}\n`;
+  }
+
   if (data.suggested_send_time) {
     output += `\n*Suggested send time: ${data.suggested_send_time}*\n`;
   }
   
+  return output;
+}
+
+function formatPrioritization(data: any): string {
+  let output = `# 🎯 Task Prioritization\n\n`;
+  
+  if (data.prioritization_framework) {
+    output += `**Framework:** ${data.prioritization_framework.replace('_', ' ').toUpperCase()}\n\n`;
+  }
+
+  // AI Reasoning
+  if (data.reasoning) {
+    output += `> 💭 *${data.reasoning.slice(0, 200)}${data.reasoning.length > 200 ? '...' : ''}*\n\n`;
+  }
+
+  if (data.quick_wins?.length > 0) {
+    output += `## ⚡ Quick Wins\n`;
+    data.quick_wins.forEach((win: string) => {
+      output += `- 🏃 ${win}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.prioritized_tasks?.length > 0) {
+    output += `## 📋 Prioritized Tasks\n\n`;
+    data.prioritized_tasks.forEach((task: any, i: number) => {
+      const priorityIcon = task.recommended_priority === 'critical' ? '🔴' : 
+                          task.recommended_priority === 'high' ? '🟠' : 
+                          task.recommended_priority === 'medium' ? '🟡' : '🟢';
+      output += `### ${i + 1}. ${priorityIcon} ${task.task_id}\n`;
+      output += `**Priority:** ${task.recommended_priority} (Score: ${task.priority_score}/100)\n`;
+      if (task.recommended_execution_time) output += `**Best Time:** ${task.recommended_execution_time}\n`;
+      output += `**Rationale:** ${task.rationale}\n\n`;
+    });
+  }
+
+  if (data.execution_order?.length > 0) {
+    output += `## 📌 Recommended Order\n`;
+    data.execution_order.forEach((taskId: string, i: number) => {
+      output += `${i + 1}. ${taskId}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.time_blocks?.length > 0) {
+    output += `## 🕐 Time Blocks\n`;
+    data.time_blocks.forEach((block: any) => {
+      output += `- **${block.time_slot}** (${block.theme}): ${block.tasks.join(', ')}\n`;
+    });
+  }
+
+  return output;
+}
+
+function formatContextEnrichment(data: any): string {
+  let output = `# 🔮 Context Enrichment\n\n`;
+
+  // AI Reasoning
+  if (data.reasoning) {
+    output += `> 💭 *${data.reasoning}*\n\n`;
+  }
+
+  if (data.event_context) {
+    output += `## 📊 Event Analysis\n`;
+    if (data.event_context.event_type_analysis) output += `**Type:** ${data.event_context.event_type_analysis}\n`;
+    if (data.event_context.historical_pattern) output += `**Pattern:** ${data.event_context.historical_pattern}\n`;
+    if (data.event_context.typical_outcomes?.length > 0) {
+      output += `**Typical Outcomes:**\n`;
+      data.event_context.typical_outcomes.forEach((outcome: string) => {
+        output += `- ${outcome}\n`;
+      });
+    }
+    output += '\n';
+  }
+
+  if (data.stakeholder_context?.length > 0) {
+    output += `## 👥 Stakeholders\n`;
+    data.stakeholder_context.forEach((stakeholder: any) => {
+      output += `### ${stakeholder.role}\n`;
+      if (stakeholder.likely_priorities?.length > 0) {
+        output += `**Priorities:** ${stakeholder.likely_priorities.join(', ')}\n`;
+      }
+      if (stakeholder.communication_preferences) output += `**Communication Style:** ${stakeholder.communication_preferences}\n`;
+      output += '\n';
+    });
+  }
+
+  if (data.success_factors?.length > 0) {
+    output += `## ✅ Success Factors\n`;
+    data.success_factors.forEach((factor: string) => {
+      output += `- ${factor}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.potential_pitfalls?.length > 0) {
+    output += `## ⚠️ Potential Pitfalls\n`;
+    data.potential_pitfalls.forEach((pitfall: any) => {
+      output += `- **${pitfall.pitfall}** → *Prevention:* ${pitfall.prevention}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.recommended_talking_points?.length > 0) {
+    output += `## 💬 Recommended Talking Points\n`;
+    data.recommended_talking_points.forEach((point: string, i: number) => {
+      output += `${i + 1}. ${point}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.questions_to_ask?.length > 0) {
+    output += `## ❓ Questions to Ask\n`;
+    data.questions_to_ask.forEach((q: string) => {
+      output += `- ${q}\n`;
+    });
+  }
+
+  return output;
+}
+
+function formatOrchestration(data: any): string {
+  let output = `# 🤖 Agent Orchestration Plan\n\n`;
+
+  // AI Reasoning
+  if (data.reasoning) {
+    output += `> 💭 *${data.reasoning.slice(0, 250)}${data.reasoning.length > 250 ? '...' : ''}*\n\n`;
+  }
+
+  if (data.expected_outcome) {
+    output += `## 🎯 Expected Outcome\n${data.expected_outcome}\n\n`;
+  }
+
+  if (data.total_estimated_time) {
+    output += `**Total Estimated Time:** ${data.total_estimated_time}\n\n`;
+  }
+
+  if (data.execution_waves?.length > 0) {
+    output += `## 🌊 Execution Waves\n\n`;
+    data.execution_waves.forEach((wave: any) => {
+      output += `### Wave ${wave.wave_number} ${wave.parallel_execution ? '(Parallel)' : '(Sequential)'}\n`;
+      output += `Tasks: ${wave.tasks.map((t: number) => `#${t + 1}`).join(', ')}\n\n`;
+    });
+  }
+
+  if (data.task_breakdown?.length > 0) {
+    output += `## 📋 Task Breakdown\n\n`;
+    data.task_breakdown.forEach((task: any, i: number) => {
+      const agentIcon = {
+        'preparation': '📋',
+        'follow-up': '✉️',
+        'scheduling': '📅',
+        'research': '🔍',
+        'communication': '💬',
+        'documentation': '📝'
+      }[task.agent_type] || '🤖';
+      
+      output += `### ${i + 1}. ${agentIcon} ${task.subtask}\n`;
+      output += `**Agent:** ${task.agent_type}\n`;
+      if (task.estimated_time) output += `**Time:** ${task.estimated_time}\n`;
+      if (task.can_run_parallel) output += `✓ Can run in parallel\n`;
+      if (task.depends_on?.length > 0) output += `↳ Depends on: ${task.depends_on.map((d: number) => `#${d + 1}`).join(', ')}\n`;
+      if (task.quality_criteria) output += `**Quality:** ${task.quality_criteria}\n`;
+      output += '\n';
+    });
+  }
+
+  if (data.human_checkpoints?.length > 0) {
+    output += `## 👤 Human Checkpoints\n`;
+    data.human_checkpoints.forEach((checkpoint: any) => {
+      output += `- After task #${checkpoint.after_task + 1}: ${checkpoint.checkpoint_purpose}\n`;
+      if (checkpoint.decision_needed) output += `  → Decision needed: ${checkpoint.decision_needed}\n`;
+    });
+    output += '\n';
+  }
+
+  if (data.risk_mitigation?.length > 0) {
+    output += `## 🛡️ Risk Mitigation\n`;
+    data.risk_mitigation.forEach((risk: any) => {
+      output += `- **${risk.risk}** → ${risk.mitigation}\n`;
+    });
+  }
+
+  if (data.coordination_notes) {
+    output += `\n---\n📝 *${data.coordination_notes}*\n`;
+  }
+
   return output;
 }
