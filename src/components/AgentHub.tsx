@@ -18,7 +18,8 @@ import {
   Check,
   RefreshCw,
   ArrowRight,
-  Link2
+  Link2,
+  BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -29,6 +30,7 @@ import { AutomationTask, Agent, ScheduleAnalysis, AGENT_DEFINITIONS } from '@/ty
 import { useAgents } from '@/hooks/useAgents';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { AgentPerformanceAnalytics } from './AgentPerformanceAnalytics';
 
 interface AgentHubProps {
   events: CalendarEvent[];
@@ -36,7 +38,7 @@ interface AgentHubProps {
 
 export function AgentHub({ events }: AgentHubProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'agents'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'agents' | 'performance'>('overview');
   const [selectedTask, setSelectedTask] = useState<AutomationTask | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   
@@ -152,18 +154,25 @@ export function AgentHub({ events }: AgentHubProps) {
 
             {/* Tabs */}
             <div className="flex border-b border-border">
-              {(['overview', 'tasks', 'agents'] as const).map((tab) => (
+              {(['overview', 'tasks', 'agents', 'performance'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "flex-1 py-3 text-sm font-medium transition-colors",
+                    "flex-1 py-2.5 text-xs font-medium transition-colors",
                     activeTab === tab
                       ? "text-primary border-b-2 border-primary"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab === 'performance' ? (
+                    <span className="flex items-center justify-center gap-1">
+                      <BarChart3 className="h-3 w-3" />
+                      Stats
+                    </span>
+                  ) : (
+                    tab.charAt(0).toUpperCase() + tab.slice(1)
+                  )}
                 </button>
               ))}
             </div>
@@ -504,6 +513,20 @@ export function AgentHub({ events }: AgentHubProps) {
                             Powered by <span className="font-medium">Lovable AI</span> • Gemini 3 Flash
                           </p>
                         </div>
+                      </motion.div>
+                    )}
+
+                    {activeTab === 'performance' && (
+                      <motion.div
+                        key="performance"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <AgentPerformanceAnalytics
+                          agents={agents}
+                          tasks={[...analysis.automatableTasks, ...analysis.humanRequiredTasks]}
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
