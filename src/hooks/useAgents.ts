@@ -8,7 +8,7 @@ import {
   AgentType,
   AGENT_DEFINITIONS 
 } from '@/types/agent';
-import { format, parseISO, isToday, isTomorrow, addDays } from 'date-fns';
+import { format, parseISO, isToday, isTomorrow, addDays, startOfDay } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
 
 const API_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
@@ -30,10 +30,19 @@ export function useAgents(events: CalendarEvent[]) {
   const analyzeSchedule = useCallback(async (): Promise<ScheduleAnalysis> => {
     setIsAnalyzing(true);
     
-    const today = new Date();
+    const today = startOfDay(new Date());
+    const endOfRange = addDays(today, 7);
+    
+    // Filter events within the next 7 days (inclusive of today)
     const upcomingEvents = events.filter(e => {
-      const eventDate = parseISO(e.event_date);
-      return eventDate >= today && eventDate <= addDays(today, 7);
+      const eventDate = startOfDay(parseISO(e.event_date));
+      return eventDate >= today && eventDate <= endOfRange;
+    });
+
+    console.log('[AgentHub] Analyzing events:', {
+      totalEvents: events.length,
+      upcomingEvents: upcomingEvents.length,
+      eventTitles: upcomingEvents.map(e => e.title),
     });
 
     const automatableTasks: AutomationTask[] = [];
