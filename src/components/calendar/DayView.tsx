@@ -1,3 +1,4 @@
+import { memo, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { DndContext, DragEndEvent, pointerWithin } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
@@ -13,7 +14,7 @@ interface DayViewProps {
   onEventClick?: (event: CalendarEvent) => void;
 }
 
-function DroppableHour({ 
+const DroppableHour = memo(function DroppableHour({ 
   date, 
   hour, 
   label,
@@ -24,7 +25,10 @@ function DroppableHour({
   label: string;
   events: CalendarEvent[];
 }) {
-  const slotId = `${format(date, 'yyyy-MM-dd')}-${hour.toString().padStart(2, '0')}`;
+  const slotId = useMemo(
+    () => `${format(date, 'yyyy-MM-dd')}-${hour.toString().padStart(2, '0')}`,
+    [date, hour]
+  );
   const { isOver, setNodeRef } = useDroppable({
     id: slotId,
     data: { date, hour },
@@ -45,7 +49,7 @@ function DroppableHour({
         {events.map((event) => (
           <motion.div
             key={event.id}
-            initial={{ opacity: 0, x: -10 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
             className="py-1"
           >
@@ -55,10 +59,15 @@ function DroppableHour({
       </div>
     </div>
   );
-}
+});
 
-export function DayView({ currentDate, hours, onMoveEvent, onEventClick }: DayViewProps) {
-  const handleDragEnd = (event: DragEndEvent) => {
+export const DayView = memo(function DayView({ 
+  currentDate, 
+  hours, 
+  onMoveEvent, 
+  onEventClick 
+}: DayViewProps) {
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
 
@@ -71,13 +80,13 @@ export function DayView({ currentDate, hours, onMoveEvent, onEventClick }: DayVi
       : undefined;
     
     onMoveEvent(eventId, newDate, newTime);
-  };
+  }, [onMoveEvent]);
 
   return (
     <DndContext collisionDetection={pointerWithin} onDragEnd={handleDragEnd}>
       <div className="flex-1 overflow-auto p-4">
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
           className="bg-card rounded-xl border border-border overflow-hidden"
         >
@@ -94,4 +103,4 @@ export function DayView({ currentDate, hours, onMoveEvent, onEventClick }: DayVi
       </div>
     </DndContext>
   );
-}
+});

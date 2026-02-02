@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, ChevronLeft, ChevronRight, Mic, Sparkles, Bell, Plus } from 'lucide-react';
 
@@ -16,9 +17,10 @@ const miniCalendarDays = [
   [25, 26, 27, 28, 29, 30, 1],
 ];
 
-export function HeroCalendarPreview() {
+export const HeroCalendarPreview = forwardRef<HTMLDivElement>(function HeroCalendarPreview(_, ref) {
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 40, rotateX: 10 }}
       animate={{ opacity: 1, y: 0, rotateX: 0 }}
       transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
@@ -231,4 +233,4 @@ export function HeroCalendarPreview() {
       </motion.div>
     </motion.div>
   );
-}
+});

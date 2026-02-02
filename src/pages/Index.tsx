@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
@@ -6,18 +6,8 @@ import { CalendarGrid } from '@/components/calendar/CalendarGrid';
 import { WeekView } from '@/components/calendar/WeekView';
 import { DayView } from '@/components/calendar/DayView';
 import { Sidebar } from '@/components/calendar/Sidebar';
-import { AddEventModal } from '@/components/calendar/AddEventModal';
-import { EventModal } from '@/components/calendar/EventModal';
-import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { AIAssistant } from '@/components/AIAssistant';
-import { AgentHub } from '@/components/AgentHub';
-import { VoiceAgent } from '@/components/VoiceAgent';
-import { DailyBriefing } from '@/components/DailyBriefing';
 import { ProactiveAlertBanner } from '@/components/ProactiveAlertBanner';
-import { AnalyticsDashboard } from '@/components/AnalyticsDashboard';
-import { CalendarSync } from '@/components/CalendarSync';
-import { QuickActions } from '@/components/QuickActions';
 import { useCalendar } from '@/hooks/useCalendar';
 import { useEvents } from '@/hooks/useEvents';
 import { useProactiveAlerts, ProactiveAlert } from '@/hooks/useProactiveAlerts';
@@ -28,7 +18,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut, Menu, X, Calendar, Bell, BellOff } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, Bell, BellOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -41,6 +31,21 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet';
+
+// Lazy load heavy components
+const AddEventModal = lazy(() => import('@/components/calendar/AddEventModal').then(m => ({ default: m.AddEventModal })));
+const EventModal = lazy(() => import('@/components/calendar/EventModal').then(m => ({ default: m.EventModal })));
+const OnboardingTour = lazy(() => import('@/components/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
+const AIAssistant = lazy(() => import('@/components/AIAssistant').then(m => ({ default: m.AIAssistant })));
+const AgentHub = lazy(() => import('@/components/AgentHub').then(m => ({ default: m.AgentHub })));
+const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ default: m.VoiceAgent })));
+const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => ({ default: m.DailyBriefing })));
+const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
+const CalendarSync = lazy(() => import('@/components/CalendarSync').then(m => ({ default: m.CalendarSync })));
+const QuickActions = lazy(() => import('@/components/QuickActions').then(m => ({ default: m.QuickActions })));
+
+// Minimal loading fallback
+const LoadingFallback = () => null;
 
 const Index = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -265,10 +270,12 @@ const Index = () => {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex h-screen bg-background overflow-hidden">
-        {/* Daily Briefing Modal */}
-        {showDailyBriefing && events.length >= 0 && !showOnboarding && (
-          <DailyBriefing events={allEvents} onDismiss={handleDismissBriefing} />
-        )}
+        {/* Daily Briefing Modal - Lazy */}
+        <Suspense fallback={<LoadingFallback />}>
+          {showDailyBriefing && events.length >= 0 && !showOnboarding && (
+            <DailyBriefing events={allEvents} onDismiss={handleDismissBriefing} />
+          )}
+        </Suspense>
 
         {/* Proactive Alert Banner */}
         <ProactiveAlertBanner 
@@ -277,10 +284,12 @@ const Index = () => {
           autoSpeak={true}
         />
 
-        {/* Onboarding Tour */}
-        {showOnboarding && (
-          <OnboardingTour onComplete={handleOnboardingComplete} />
-        )}
+        {/* Onboarding Tour - Lazy */}
+        <Suspense fallback={<LoadingFallback />}>
+          {showOnboarding && (
+            <OnboardingTour onComplete={handleOnboardingComplete} />
+          )}
+        </Suspense>
 
         {/* Premium Header Bar */}
         <div className="fixed top-0 left-0 right-0 z-40 h-14 glass-premium border-b border-border/50">
@@ -430,62 +439,76 @@ const Index = () => {
           </motion.main>
         </div>
 
-        {/* Quick Actions FAB */}
-        <QuickActions
-          onAddEvent={() => setIsAddEventOpen(true)}
-          onOpenVoice={() => setIsVoiceActive(true)}
-          onOpenAnalytics={() => setShowAnalytics(true)}
-          onOpenCalendarSync={() => setShowCalendarSync(true)}
-          onOpenAI={() => {}} // AI Assistant has its own trigger
-          isVoiceActive={isVoiceActive}
-        />
+        {/* Quick Actions FAB - Lazy */}
+        <Suspense fallback={<LoadingFallback />}>
+          <QuickActions
+            onAddEvent={() => setIsAddEventOpen(true)}
+            onOpenVoice={() => setIsVoiceActive(true)}
+            onOpenAnalytics={() => setShowAnalytics(true)}
+            onOpenCalendarSync={() => setShowCalendarSync(true)}
+            onOpenAI={() => {}}
+            isVoiceActive={isVoiceActive}
+          />
+        </Suspense>
 
-        <AddEventModal
-          isOpen={isAddEventOpen}
-          onClose={() => setIsAddEventOpen(false)}
-          onAdd={handleAddEvent}
-          selectedDate={selectedDate}
-        />
+        {/* Modals - Lazy loaded */}
+        <Suspense fallback={<LoadingFallback />}>
+          <AddEventModal
+            isOpen={isAddEventOpen}
+            onClose={() => setIsAddEventOpen(false)}
+            onAdd={handleAddEvent}
+            selectedDate={selectedDate}
+          />
+        </Suspense>
 
-        {/* Event Details/Edit Modal */}
-        <EventModal
-          event={selectedEvent}
-          isOpen={isEventModalOpen}
-          onClose={() => {
-            setIsEventModalOpen(false);
-            setSelectedEvent(null);
-          }}
-          onUpdate={updateEvent}
-          onDelete={deleteEvent}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <EventModal
+            event={selectedEvent}
+            isOpen={isEventModalOpen}
+            onClose={() => {
+              setIsEventModalOpen(false);
+              setSelectedEvent(null);
+            }}
+            onUpdate={updateEvent}
+            onDelete={deleteEvent}
+          />
+        </Suspense>
 
-        {/* AI Assistant */}
-        <AIAssistant events={allEvents} />
+        {/* AI Components - Lazy loaded */}
+        <Suspense fallback={<LoadingFallback />}>
+          <AIAssistant events={allEvents} />
+        </Suspense>
 
-        {/* AI Agent Hub */}
-        <AgentHub events={allEvents} />
+        <Suspense fallback={<LoadingFallback />}>
+          <AgentHub events={allEvents} />
+        </Suspense>
 
-        {/* Voice Agent - ElevenLabs */}
-        <VoiceAgent 
-          events={allEvents} 
-          onCreateEvent={handleVoiceCreateEvent}
-          onVoiceCommand={trackVoiceCommand}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <VoiceAgent 
+            events={allEvents} 
+            onCreateEvent={handleVoiceCreateEvent}
+            onVoiceCommand={trackVoiceCommand}
+          />
+        </Suspense>
 
-        {/* Analytics Dashboard */}
-        <AnalyticsDashboard 
-          events={allEvents} 
-          isOpen={showAnalytics} 
-          onClose={() => setShowAnalytics(false)} 
-        />
+        {/* Analytics Dashboard - Lazy */}
+        <Suspense fallback={<LoadingFallback />}>
+          <AnalyticsDashboard 
+            events={allEvents} 
+            isOpen={showAnalytics} 
+            onClose={() => setShowAnalytics(false)} 
+          />
+        </Suspense>
 
-        {/* Calendar Sync Modal */}
-        <CalendarSync 
-          events={allEvents} 
-          isOpen={showCalendarSync} 
-          onClose={() => setShowCalendarSync(false)}
-          onImportEvents={handleImportEvents}
-        />
+        {/* Calendar Sync Modal - Lazy */}
+        <Suspense fallback={<LoadingFallback />}>
+          <CalendarSync 
+            events={allEvents} 
+            isOpen={showCalendarSync} 
+            onClose={() => setShowCalendarSync(false)}
+            onImportEvents={handleImportEvents}
+          />
+        </Suspense>
       </div>
     </TooltipProvider>
   );

@@ -1,8 +1,9 @@
+import { memo, useMemo } from 'react';
 import { useDroppable } from '@dnd-kit/core';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { DayInfo, CalendarEvent, EventColor } from '@/types/calendar';
+import { DayInfo, CalendarEvent } from '@/types/calendar';
 import { DraggableEvent } from './DraggableEvent';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -13,9 +14,15 @@ interface DroppableDayProps {
   onEventClick?: (event: CalendarEvent) => void;
 }
 
-export function DroppableDay({ day, isSelected, onClick, onEventClick }: DroppableDayProps) {
+export const DroppableDay = memo(function DroppableDay({ 
+  day, 
+  isSelected, 
+  onClick, 
+  onEventClick 
+}: DroppableDayProps) {
+  const dateId = useMemo(() => format(day.date, 'yyyy-MM-dd'), [day.date]);
   const { isOver, setNodeRef } = useDroppable({
-    id: format(day.date, 'yyyy-MM-dd'),
+    id: dateId,
     data: { date: day.date },
   });
   const isMobile = useIsMobile();
@@ -50,7 +57,12 @@ export function DroppableDay({ day, isSelected, onClick, onEventClick }: Droppab
       </span>
       <div className="mt-0.5 md:mt-1 space-y-0.5 md:space-y-1 overflow-hidden">
         {visibleEvents.map((event) => (
-          <DraggableEvent key={event.id} event={event} compact={isMobile} onClick={() => onEventClick?.(event)} />
+          <DraggableEvent 
+            key={event.id} 
+            event={event} 
+            compact={isMobile} 
+            onClick={() => onEventClick?.(event)} 
+          />
         ))}
         {remainingCount > 0 && (
           <span className="text-[10px] md:text-xs text-muted-foreground px-1 md:px-2">
@@ -60,4 +72,4 @@ export function DroppableDay({ day, isSelected, onClick, onEventClick }: Droppab
       </div>
     </motion.div>
   );
-}
+});
