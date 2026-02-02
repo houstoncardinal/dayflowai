@@ -28,7 +28,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import heroIllustration from '@/assets/hero-illustration.png';
+import { HeroCalendarPreview } from '@/components/landing/HeroCalendarPreview';
 
 const faqs = [
   {
@@ -271,23 +271,10 @@ export default function Landing() {
               </motion.div>
             </div>
 
-            {/* Right Illustration */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative lg:pl-8"
-            >
-              <div className="relative">
-                {/* Subtle glow effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-event-violet/5 rounded-3xl blur-3xl" />
-                <img 
-                  src={heroIllustration} 
-                  alt="Dayflow calendar interface" 
-                  className="relative w-full max-w-lg mx-auto lg:max-w-none drop-shadow-2xl"
-                />
-              </div>
-            </motion.div>
+            {/* Right - Interactive Calendar Preview */}
+            <div className="relative lg:pl-4">
+              <HeroCalendarPreview />
+            </div>
           </div>
         </div>
       </section>
