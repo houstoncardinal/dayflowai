@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
@@ -20,7 +21,12 @@ const colorClasses: Record<EventColor, string> = {
   rose: 'bg-event-rose',
 };
 
-export function DraggableEvent({ event, showTime = false, compact = false, onClick }: DraggableEventProps) {
+export const DraggableEvent = memo(function DraggableEvent({ 
+  event, 
+  showTime = false, 
+  compact = false, 
+  onClick 
+}: DraggableEventProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: event.id,
     data: { event },
@@ -43,7 +49,7 @@ export function DraggableEvent({ event, showTime = false, compact = false, onCli
         e.stopPropagation();
         onClick?.();
       }}
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={false}
       animate={{ opacity: 1, scale: 1 }}
       className={cn(
         'truncate rounded-md font-medium text-white cursor-grab active:cursor-grabbing transition-shadow',
@@ -58,4 +64,4 @@ export function DraggableEvent({ event, showTime = false, compact = false, onCli
       {event.title}
     </motion.div>
   );
-}
+});
