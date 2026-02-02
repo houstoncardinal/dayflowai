@@ -19,7 +19,8 @@ import {
   RefreshCw,
   ArrowRight,
   Link2,
-  BarChart3
+  BarChart3,
+  GitBranch
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -28,9 +29,11 @@ import { Progress } from '@/components/ui/progress';
 import { CalendarEvent } from '@/types/calendar';
 import { AutomationTask, Agent, ScheduleAnalysis, AGENT_DEFINITIONS } from '@/types/agent';
 import { useAgents } from '@/hooks/useAgents';
+import { useAgentOrchestrator } from '@/hooks/useAgentOrchestrator';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { AgentPerformanceAnalytics } from './AgentPerformanceAnalytics';
+import { OrchestrationView } from './OrchestrationView';
 
 interface AgentHubProps {
   events: CalendarEvent[];
@@ -38,7 +41,7 @@ interface AgentHubProps {
 
 export function AgentHub({ events }: AgentHubProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'agents' | 'performance'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'agents' | 'orchestrate' | 'performance'>('overview');
   const [selectedTask, setSelectedTask] = useState<AutomationTask | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   
@@ -51,6 +54,16 @@ export function AgentHub({ events }: AgentHubProps) {
     runTask,
     runAllTasks,
   } = useAgents(events);
+
+  const {
+    agents: orchestratorAgents,
+    workQueue,
+    currentPlan,
+    isOrchestrating,
+    planOrchestration,
+    executeOrchestration,
+    cancelOrchestration,
+  } = useAgentOrchestrator(events);
 
   // Auto-analyze on open
   useEffect(() => {
@@ -153,13 +166,13 @@ export function AgentHub({ events }: AgentHubProps) {
             </div>
 
             {/* Tabs */}
-            <div className="flex border-b border-border">
-              {(['overview', 'tasks', 'agents', 'performance'] as const).map((tab) => (
+            <div className="flex border-b border-border overflow-x-auto">
+              {(['overview', 'tasks', 'agents', 'orchestrate', 'performance'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={cn(
-                    "flex-1 py-2.5 text-xs font-medium transition-colors",
+                    "flex-1 py-2.5 text-xs font-medium transition-colors whitespace-nowrap px-1",
                     activeTab === tab
                       ? "text-primary border-b-2 border-primary"
                       : "text-muted-foreground hover:text-foreground"
@@ -169,6 +182,11 @@ export function AgentHub({ events }: AgentHubProps) {
                     <span className="flex items-center justify-center gap-1">
                       <BarChart3 className="h-3 w-3" />
                       Stats
+                    </span>
+                  ) : tab === 'orchestrate' ? (
+                    <span className="flex items-center justify-center gap-1">
+                      <GitBranch className="h-3 w-3" />
+                      Orchestrate
                     </span>
                   ) : (
                     tab.charAt(0).toUpperCase() + tab.slice(1)
@@ -513,6 +531,25 @@ export function AgentHub({ events }: AgentHubProps) {
                             Powered by <span className="font-medium">Lovable AI</span> • Gemini 3 Flash
                           </p>
                         </div>
+                      </motion.div>
+                    )}
+
+                    {activeTab === 'orchestrate' && (
+                      <motion.div
+                        key="orchestrate"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                      >
+                        <OrchestrationView
+                          plan={currentPlan}
+                          workQueue={workQueue}
+                          agents={orchestratorAgents}
+                          isOrchestrating={isOrchestrating}
+                          onExecute={executeOrchestration}
+                          onCancel={cancelOrchestration}
+                          onPlanNew={planOrchestration}
+                        />
                       </motion.div>
                     )}
 
