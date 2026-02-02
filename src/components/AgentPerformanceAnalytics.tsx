@@ -12,15 +12,6 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Agent, AutomationTask } from '@/types/agent';
-import { cn } from '@/lib/utils';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 
 interface AgentPerformanceMetrics {
   totalTasksCompleted: number;
@@ -39,11 +30,6 @@ interface AgentPerformanceMetrics {
     timeSavedMinutes: number;
     successRate: number;
   }[];
-  weeklyTrend: {
-    day: string;
-    completed: number;
-    timeSaved: number;
-  }[];
 }
 
 interface AgentPerformanceAnalyticsProps {
@@ -51,7 +37,6 @@ interface AgentPerformanceAnalyticsProps {
   tasks: AutomationTask[];
 }
 
-// Estimated time savings per task type (in minutes)
 const TIME_SAVINGS_MAP: Record<string, number> = {
   preparation: 15,
   'follow-up': 10,
@@ -62,231 +47,205 @@ const TIME_SAVINGS_MAP: Record<string, number> = {
 };
 
 export function AgentPerformanceAnalytics({ agents, tasks }: AgentPerformanceAnalyticsProps) {
-  // Calculate metrics
   const metrics = calculateMetrics(agents, tasks);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-4"
     >
-      {/* Summary Stats */}
+      {/* Summary Stats Grid */}
       <div className="grid grid-cols-2 gap-3">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-event-emerald/20 to-event-teal/10 rounded-xl p-4 border border-event-emerald/20"
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="p-4 rounded-xl border border-border bg-card"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-event-emerald/20 flex items-center justify-center">
-              <Timer className="h-4 w-4 text-event-emerald" />
+            <div className="h-7 w-7 rounded-lg bg-event-emerald/10 flex items-center justify-center">
+              <Timer className="h-3.5 w-3.5 text-event-emerald" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-event-emerald">
+          <p className="text-2xl font-semibold tracking-tight text-event-emerald">
             {formatTimeSaved(metrics.totalTimeSavedMinutes)}
           </p>
-          <p className="text-xs text-muted-foreground">Time Saved</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Time Saved</p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.15 }}
-          className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-xl p-4 border border-primary/20"
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="p-4 rounded-xl border border-border bg-card"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
+            <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-primary">
+          <p className="text-2xl font-semibold tracking-tight">
             {metrics.totalTasksCompleted}
           </p>
-          <p className="text-xs text-muted-foreground">Tasks Completed</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Completed</p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="bg-gradient-to-br from-event-amber/20 to-event-coral/10 rounded-xl p-4 border border-event-amber/20"
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="p-4 rounded-xl border border-border bg-card"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-event-amber/20 flex items-center justify-center">
-              <TrendingUp className="h-4 w-4 text-event-amber" />
+            <div className="h-7 w-7 rounded-lg bg-event-amber/10 flex items-center justify-center">
+              <TrendingUp className="h-3.5 w-3.5 text-event-amber" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-event-amber">
+          <p className="text-2xl font-semibold tracking-tight text-event-amber">
             {metrics.completionRate}%
           </p>
-          <p className="text-xs text-muted-foreground">Completion Rate</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Success Rate</p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.25 }}
-          className="bg-gradient-to-br from-event-violet/20 to-event-rose/10 rounded-xl p-4 border border-event-violet/20"
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="p-4 rounded-xl border border-border bg-card"
         >
           <div className="flex items-center gap-2 mb-2">
-            <div className="h-8 w-8 rounded-lg bg-event-violet/20 flex items-center justify-center">
-              <Zap className="h-4 w-4 text-event-violet" />
+            <div className="h-7 w-7 rounded-lg bg-event-violet/10 flex items-center justify-center">
+              <Zap className="h-3.5 w-3.5 text-event-violet" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-event-violet">
+          <p className="text-2xl font-semibold tracking-tight text-event-violet">
             {metrics.averageTaskDuration}s
           </p>
-          <p className="text-xs text-muted-foreground">Avg. AI Processing</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">Avg. Process</p>
         </motion.div>
       </div>
 
       {/* Task Distribution */}
+      {Object.keys(metrics.tasksByType).length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="p-4 rounded-xl border border-border bg-card"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" />
+            <h4 className="text-xs font-medium">Distribution</h4>
+          </div>
+          <div className="space-y-2.5">
+            {Object.entries(metrics.tasksByType).map(([type, count], i) => {
+              const total = Object.values(metrics.tasksByType).reduce((a, b) => a + b, 0);
+              const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+              return (
+                <div key={type} className="flex items-center gap-3">
+                  <span className="text-[11px] text-muted-foreground w-20 capitalize truncate">
+                    {type}
+                  </span>
+                  <div className="flex-1">
+                    <Progress value={percentage} className="h-1.5" />
+                  </div>
+                  <span className="text-[11px] font-medium w-6 text-right tabular-nums">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Status Overview */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 5 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-secondary/30 rounded-xl p-4"
+        className="p-4 rounded-xl border border-border bg-card"
       >
         <div className="flex items-center gap-2 mb-3">
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          <h4 className="text-sm font-medium">Tasks by Type</h4>
+          <Activity className="h-3.5 w-3.5 text-muted-foreground" />
+          <h4 className="text-xs font-medium">Status</h4>
         </div>
-        <div className="space-y-2">
-          {Object.entries(metrics.tasksByType).map(([type, count], i) => {
-            const total = Object.values(metrics.tasksByType).reduce((a, b) => a + b, 0);
-            const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
-            return (
-              <motion.div
-                key={type}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.05 }}
-                className="flex items-center gap-3"
-              >
-                <span className="text-xs text-muted-foreground w-24 capitalize truncate">
-                  {type}
-                </span>
-                <div className="flex-1">
-                  <Progress value={percentage} className="h-2" />
-                </div>
-                <span className="text-xs font-medium w-12 text-right">{count}</span>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-
-      {/* Status Breakdown */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="bg-secondary/30 rounded-xl p-4"
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <Activity className="h-4 w-4 text-muted-foreground" />
-          <h4 className="text-sm font-medium">Task Status</h4>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex-1 flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-event-emerald" />
-            <span className="text-xs">Completed</span>
-            <Badge variant="secondary" className="ml-auto">
-              {metrics.tasksByStatus.completed}
-            </Badge>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-event-emerald" />
+            <span className="text-[11px] text-muted-foreground">Done</span>
+            <span className="text-[11px] font-medium">{metrics.tasksByStatus.completed}</span>
           </div>
-          <div className="flex-1 flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-event-amber" />
-            <span className="text-xs">Pending</span>
-            <Badge variant="secondary" className="ml-auto">
-              {metrics.tasksByStatus.pending}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-event-amber" />
+            <span className="text-[11px] text-muted-foreground">Pending</span>
+            <span className="text-[11px] font-medium">{metrics.tasksByStatus.pending}</span>
           </div>
-          <div className="flex-1 flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-destructive" />
-            <span className="text-xs">Failed</span>
-            <Badge variant="secondary" className="ml-auto">
-              {metrics.tasksByStatus.failed}
-            </Badge>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-destructive" />
+            <span className="text-[11px] text-muted-foreground">Failed</span>
+            <span className="text-[11px] font-medium">{metrics.tasksByStatus.failed}</span>
           </div>
         </div>
       </motion.div>
 
       {/* Agent Leaderboard */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-secondary/30 rounded-xl p-4"
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <Award className="h-4 w-4 text-event-amber" />
-          <h4 className="text-sm font-medium">Agent Performance</h4>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="h-8 text-xs">Agent</TableHead>
-              <TableHead className="h-8 text-xs text-center">Tasks</TableHead>
-              <TableHead className="h-8 text-xs text-center">Time Saved</TableHead>
-              <TableHead className="h-8 text-xs text-right">Rate</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {metrics.agentMetrics.map((am, i) => (
-              <TableRow key={am.agent.id}>
-                <TableCell className="py-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{am.agent.icon}</span>
-                    <span className="text-xs font-medium">{am.agent.name}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="py-2 text-center">
-                  <Badge variant="outline" className="text-xs">
+      {metrics.agentMetrics.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="p-4 rounded-xl border border-border bg-card"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Award className="h-3.5 w-3.5 text-event-amber" />
+            <h4 className="text-xs font-medium">Agent Performance</h4>
+          </div>
+          <div className="space-y-2">
+            {metrics.agentMetrics.slice(0, 4).map((am, i) => (
+              <div 
+                key={am.agent.id}
+                className="flex items-center gap-3 p-2 rounded-lg bg-muted/30"
+              >
+                <span className="text-base">{am.agent.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-medium truncate">{am.agent.name}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {am.timeSavedMinutes}m saved
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-[10px] h-5">
                     {am.tasksCompleted}
                   </Badge>
-                </TableCell>
-                <TableCell className="py-2 text-center">
-                  <span className="text-xs text-event-emerald font-medium">
-                    {am.timeSavedMinutes}m
-                  </span>
-                </TableCell>
-                <TableCell className="py-2 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Progress 
-                      value={am.successRate} 
-                      className="h-1.5 w-12" 
-                    />
-                    <span className="text-xs text-muted-foreground w-8">
+                  <div className="w-10 text-right">
+                    <span className="text-[10px] text-event-emerald font-medium">
                       {am.successRate}%
                     </span>
                   </div>
-                </TableCell>
-              </TableRow>
+                </div>
+              </div>
             ))}
-          </TableBody>
-        </Table>
-      </motion.div>
+          </div>
+        </motion.div>
+      )}
 
-      {/* Productivity Insight */}
+      {/* Productivity Summary */}
       {metrics.totalTimeSavedMinutes > 0 && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-r from-event-emerald/10 via-event-teal/10 to-primary/10 rounded-xl p-4 border border-event-emerald/20"
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="p-4 rounded-xl border border-event-emerald/20 bg-event-emerald/5"
         >
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-full bg-event-emerald/20 flex items-center justify-center flex-shrink-0">
-              <Clock className="h-5 w-5 text-event-emerald" />
+            <div className="h-9 w-9 rounded-full bg-event-emerald/20 flex items-center justify-center shrink-0">
+              <Clock className="h-4 w-4 text-event-emerald" />
             </div>
             <div>
-              <p className="text-sm font-medium">Productivity Boost</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                AI agents have saved you <span className="text-event-emerald font-semibold">{formatTimeSaved(metrics.totalTimeSavedMinutes)}</span> this session. 
-                That's equivalent to <span className="text-primary font-semibold">{getProductivityEquivalent(metrics.totalTimeSavedMinutes)}</span>!
+              <p className="text-xs font-medium">Productivity Boost</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                AI agents saved you <span className="text-event-emerald font-semibold">{formatTimeSaved(metrics.totalTimeSavedMinutes)}</span> — 
+                that's <span className="font-medium">{getProductivityEquivalent(metrics.totalTimeSavedMinutes)}</span>
               </p>
             </div>
           </div>
@@ -301,24 +260,20 @@ function calculateMetrics(agents: Agent[], tasks: AutomationTask[]): AgentPerfor
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const failedTasks = tasks.filter(t => t.status === 'blocked');
   
-  // Calculate total time saved based on task types
   const totalTimeSavedMinutes = completedTasks.reduce((total, task) => {
     return total + (TIME_SAVINGS_MAP[task.type] || 10);
   }, 0);
 
-  // Calculate tasks by type
   const tasksByType: Record<string, number> = {};
   tasks.forEach(task => {
     tasksByType[task.type] = (tasksByType[task.type] || 0) + 1;
   });
 
-  // Calculate completion rate
   const totalTasks = tasks.length;
   const completionRate = totalTasks > 0 
     ? Math.round((completedTasks.length / totalTasks) * 100) 
     : 0;
 
-  // Calculate agent-specific metrics
   const agentMetrics = agents.map(agent => {
     const agentTasks = tasks.filter(t => t.type === agent.type);
     const agentCompleted = agentTasks.filter(t => t.status === 'completed');
@@ -335,7 +290,6 @@ function calculateMetrics(agents: Agent[], tasks: AutomationTask[]): AgentPerfor
     };
   }).filter(am => am.tasksCompleted > 0 || agents.find(a => a.id === am.agent.id)?.completedTasks! > 0);
 
-  // Add agents with completed tasks but no tasks in current analysis
   agents.forEach(agent => {
     if (agent.completedTasks > 0 && !agentMetrics.find(am => am.agent.id === agent.id)) {
       agentMetrics.push({
@@ -347,14 +301,13 @@ function calculateMetrics(agents: Agent[], tasks: AutomationTask[]): AgentPerfor
     }
   });
 
-  // Sort by tasks completed
   agentMetrics.sort((a, b) => b.tasksCompleted - a.tasksCompleted);
 
   return {
     totalTasksCompleted: completedTasks.length + agents.reduce((sum, a) => sum + a.completedTasks, 0),
     totalTimeSavedMinutes: totalTimeSavedMinutes + agents.reduce((sum, a) => sum + a.completedTasks * (TIME_SAVINGS_MAP[a.type] || 10), 0),
     completionRate,
-    averageTaskDuration: 30, // AI typically takes ~30 seconds
+    averageTaskDuration: 30,
     tasksByType,
     tasksByStatus: {
       completed: completedTasks.length,
@@ -362,24 +315,20 @@ function calculateMetrics(agents: Agent[], tasks: AutomationTask[]): AgentPerfor
       failed: failedTasks.length,
     },
     agentMetrics,
-    weeklyTrend: [], // Would need historical data
   };
 }
 
 function formatTimeSaved(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes}m`;
-  }
+  if (minutes < 60) return `${minutes}m`;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
 }
 
 function getProductivityEquivalent(minutes: number): string {
-  if (minutes < 15) return 'a quick coffee break';
-  if (minutes < 30) return 'a focused power session';
+  if (minutes < 15) return 'a quick break';
+  if (minutes < 30) return 'a focus session';
   if (minutes < 60) return 'a deep work block';
   if (minutes < 120) return 'an extra meeting';
-  if (minutes < 240) return 'half a workday';
-  return 'almost a full workday';
+  return 'half a workday';
 }
