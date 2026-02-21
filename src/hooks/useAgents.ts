@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { CalendarEvent } from '@/types/calendar';
 import { 
   Agent, 
@@ -10,6 +10,12 @@ import {
 } from '@/types/agent';
 import { format, parseISO, isToday, isTomorrow, addDays, startOfDay } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
+import { 
+  ThinkingStep, 
+  ThinkingPhase, 
+  generateThinkingPipeline 
+} from '@/components/AgentThinkingVisualizer';
+import { ExecutionVisualization } from '@/hooks/useAgentOrchestrator';
 
 const API_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
 
@@ -25,6 +31,8 @@ export function useAgents(events: CalendarEvent[]) {
   const [analysis, setAnalysis] = useState<ScheduleAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [taskVisualization, setTaskVisualization] = useState<ExecutionVisualization | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // AI-powered schedule analysis
   const analyzeSchedule = useCallback(async (): Promise<ScheduleAnalysis> => {
@@ -303,6 +311,104 @@ export function useAgents(events: CalendarEvent[]) {
     return result;
   }, [events, agents]);
 
+  // Run thinking visualization for a task
+  const startTaskVisualization = useCallback(async (task: AutomationTask) => {
+    const agentDef = AGENT_DEFINITIONS.find(d => d.type === task.type);
+    const steps = generateThinkingPipeline(task.type, task.title, task.eventTitle);
+    const startTime = Date.now();
+    
+    const viz: ExecutionVisualization = {
+      taskId: task.id,
+      agentType: task.type,
+      agentIcon: agentDef?.icon || '🤖',
+      taskTitle: task.title,
+      steps,
+      currentPhase: 'initializing',
+      startTime,
+      elapsedMs: 0,
+      totalTokens: 0,
+      liveTokens: [],
+      isStreaming: false,
+      events: [],
+    };
+    
+    setTaskVisualization(viz);
+    
+    // Start timer
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      setTaskVisualization(prev => prev ? { ...prev, elapsedMs: Date.now() - startTime } : null);
+    }, 100);
+    
+    // Animate through pre-API steps
+    const preApiSteps = steps.filter(s => 
+      s.phase !== 'executing' && s.phase !== 'synthesizing' && 
+      s.phase !== 'quality_check' && s.phase !== 'complete'
+    );
+    
+    for (const step of preApiSteps) {
+      setTaskVisualization(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          currentPhase: step.phase,
+          steps: prev.steps.map(s => s.id === step.id ? { ...s, status: 'active' as const } : s),
+        };
+      });
+      
+      const delay = step.phase === 'initializing' ? 300 
+        : step.phase === 'context_gathering' ? 400 + Math.random() * 200
+        : step.phase === 'reasoning' ? 500 + Math.random() * 300
+        : 400 + Math.random() * 200;
+      
+      await new Promise(r => setTimeout(r, delay));
+      
+      setTaskVisualization(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          steps: prev.steps.map(s => s.id === step.id ? { ...s, status: 'done' as const, duration: Math.round(delay) } : s),
+        };
+      });
+    }
+    
+    // Mark executing as active
+    setTaskVisualization(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        currentPhase: 'executing',
+        isStreaming: true,
+        steps: prev.steps.map(s => s.phase === 'executing' ? { ...s, status: 'active' as const } : s),
+      };
+    });
+  }, []);
+
+  const completeTaskVisualization = useCallback((success: boolean, tokenCount?: number) => {
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+    
+    setTaskVisualization(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        steps: prev.steps.map(s => {
+          if (s.status === 'active' || s.status === 'pending') {
+            return success 
+              ? { ...s, status: 'done' as const, duration: Math.round(Math.random() * 200 + 100) }
+              : s.status === 'active' ? { ...s, status: 'error' as const } : s;
+          }
+          return s;
+        }),
+        currentPhase: success ? 'complete' : 'error',
+        isStreaming: false,
+        elapsedMs: Date.now() - prev.startTime,
+        totalTokens: tokenCount || 0,
+      };
+    });
+    
+    setTimeout(() => setTaskVisualization(null), 2500);
+  }, []);
+
   // Execute a single task with AI
   const runTask = useCallback(async (task: AutomationTask): Promise<string> => {
     if (!task.automatable) {
@@ -317,6 +423,9 @@ export function useAgents(events: CalendarEvent[]) {
         ? { ...a, status: 'working', currentTask: task }
         : a
     ));
+
+    // Start visual pipeline
+    await startTaskVisualization(task);
 
     try {
       const response = await fetch(API_URL, {
@@ -346,6 +455,8 @@ export function useAgents(events: CalendarEvent[]) {
       }
 
       const result = await response.json();
+      
+      completeTaskVisualization(true, result.usage?.total_tokens);
       
       // Format the output based on the tool used
       let formattedOutput = '';
@@ -380,6 +491,8 @@ export function useAgents(events: CalendarEvent[]) {
       setActiveTaskId(null);
       return formattedOutput;
     } catch (error) {
+      completeTaskVisualization(false);
+      
       setAgents(prev => prev.map(a => 
         a.type === task.type 
           ? { ...a, status: 'idle', currentTask: undefined }
@@ -395,7 +508,7 @@ export function useAgents(events: CalendarEvent[]) {
       
       throw error;
     }
-  }, [analysis, events]);
+  }, [analysis, events, startTaskVisualization, completeTaskVisualization]);
 
   const runAllTasks = useCallback(async () => {
     if (!analysis) return;
@@ -433,6 +546,7 @@ export function useAgents(events: CalendarEvent[]) {
     analysis,
     isAnalyzing,
     activeTaskId,
+    taskVisualization,
     analyzeSchedule,
     runTask,
     runAllTasks,

@@ -22,7 +22,8 @@ import {
   GitBranch,
   ChevronDown,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -37,6 +38,7 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { AgentPerformanceAnalytics } from './AgentPerformanceAnalytics';
 import { OrchestrationView } from './OrchestrationView';
+import { AgentThinkingVisualizer } from './AgentThinkingVisualizer';
 
 interface AgentHubProps {
   events: CalendarEvent[];
@@ -64,6 +66,7 @@ export function AgentHub({ events }: AgentHubProps) {
     analysis,
     isAnalyzing,
     activeTaskId,
+    taskVisualization,
     analyzeSchedule,
     runTask,
     runAllTasks,
@@ -74,10 +77,14 @@ export function AgentHub({ events }: AgentHubProps) {
     workQueue,
     currentPlan,
     isOrchestrating,
+    activeVisualization,
     planOrchestration,
     executeOrchestration,
     cancelOrchestration,
   } = useAgentOrchestrator(events);
+
+  // Determine which visualization to show (task-level or orchestrator-level)
+  const currentViz = taskVisualization || activeVisualization;
 
   useEffect(() => {
     if (isOpen && !analysis && !isAnalyzing) {
@@ -234,7 +241,32 @@ export function AgentHub({ events }: AgentHubProps) {
 
               {/* Content */}
               <ScrollArea className="flex-1 px-4 py-4">
-                {isAnalyzing ? (
+                {/* Active Thinking Visualizer — always on top when running */}
+                <AnimatePresence>
+                  {currentViz && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="mb-4"
+                    >
+                      <AgentThinkingVisualizer
+                        steps={currentViz.steps}
+                        currentPhase={currentViz.currentPhase}
+                        agentType={currentViz.agentType}
+                        agentIcon={currentViz.agentIcon}
+                        taskTitle={currentViz.taskTitle}
+                        elapsedMs={currentViz.elapsedMs}
+                        totalTokens={currentViz.totalTokens}
+                        liveTokens={currentViz.liveTokens}
+                        isStreaming={currentViz.isStreaming}
+                        compact={!isExpanded}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {isAnalyzing && !currentViz ? (
                   <div className="flex flex-col items-center justify-center h-64 gap-4">
                     <div className="relative">
                       <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center">
@@ -249,6 +281,16 @@ export function AgentHub({ events }: AgentHubProps) {
                     <div className="text-center">
                       <p className="text-sm font-medium">Analyzing schedule</p>
                       <p className="text-xs text-muted-foreground mt-1">Identifying automation opportunities...</p>
+                    </div>
+                  </div>
+                ) : !analysis && !currentViz ? (
+                  <div className="flex flex-col items-center justify-center h-64 gap-4">
+                    <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center">
+                      <Brain className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium">Ready to analyze</p>
+                      <p className="text-xs text-muted-foreground mt-1">Click refresh to scan your schedule</p>
                     </div>
                   </div>
                 ) : !analysis ? (
