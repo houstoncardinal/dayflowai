@@ -37,7 +37,7 @@ const AddEventModal = lazy(() => import('@/components/calendar/AddEventModal').t
 const EventModal = lazy(() => import('@/components/calendar/EventModal').then(m => ({ default: m.EventModal })));
 const OnboardingTour = lazy(() => import('@/components/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
 const AIAssistant = lazy(() => import('@/components/AIAssistant').then(m => ({ default: m.AIAssistant })));
-const AgentHub = lazy(() => import('@/components/AgentHub').then(m => ({ default: m.AgentHub })));
+const AIRobot = lazy(() => import('@/components/AIRobot').then(m => ({ default: m.default })));
 const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ default: m.VoiceAgent })));
 const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => ({ default: m.DailyBriefing })));
 const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
@@ -480,7 +480,7 @@ const Index = () => {
         </Suspense>
 
         <Suspense fallback={<LoadingFallback />}>
-          <AgentHub events={allEvents} />
+          <AIRobot events={allEvents} />
         </Suspense>
 
         <Suspense fallback={<LoadingFallback />}>
