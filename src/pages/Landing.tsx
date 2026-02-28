@@ -45,7 +45,7 @@ const faqs = [
   },
   {
     question: 'Is my data secure?',
-    answer: 'Absolutely. We use bank-level encryption (AES-256) for all data. Your calendar data is never sold or shared with third parties. We\'re SOC 2 Type II certified.',
+    answer: 'Absolutely. We use bank-level encryption (AES-256) for all data at rest and in transit. Your calendar data is never sold or shared with third parties.',
   },
   {
     question: 'Can I cancel my subscription anytime?',

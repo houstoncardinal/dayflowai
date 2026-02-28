@@ -9,8 +9,7 @@ import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { AIAssistant } from '@/components/AIAssistant';
-import { AIRobot } from '@/components/AIRobot';
+import AIRobot from '@/components/AIRobot';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCalendar } from '@/hooks/useCalendar';
@@ -277,9 +276,6 @@ export default function Demo() {
         onAdd={handleAddEvent}
         selectedDate={selectedDate}
       />
-
-      {/* AI Assistant */}
-      <AIAssistant events={demoEvents} />
 
       {/* AI Robot */}
       <AIRobot events={demoEvents} />

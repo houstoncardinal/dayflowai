@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CalendarHeader } from '@/components/calendar/CalendarHeader';
@@ -36,7 +37,6 @@ import {
 const AddEventModal = lazy(() => import('@/components/calendar/AddEventModal').then(m => ({ default: m.AddEventModal })));
 const EventModal = lazy(() => import('@/components/calendar/EventModal').then(m => ({ default: m.EventModal })));
 const OnboardingTour = lazy(() => import('@/components/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
-const AIAssistant = lazy(() => import('@/components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 const AIRobot = lazy(() => import('@/components/AIRobot').then(m => ({ default: m.default })));
 const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ default: m.VoiceAgent })));
 const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => ({ default: m.DailyBriefing })));
@@ -66,7 +66,8 @@ const Index = () => {
   const [showDailyBriefing, setShowDailyBriefing] = useState(() => {
     const lastBriefing = localStorage.getItem('dayflow-last-briefing');
     const today = format(new Date(), 'yyyy-MM-dd');
-    return lastBriefing !== today && !localStorage.getItem('dayflow-app-onboarding-complete') === false;
+    const onboardingComplete = localStorage.getItem('dayflow-app-onboarding-complete') === 'true';
+    return lastBriefing !== today && onboardingComplete;
   });
   
   // Current proactive alert
@@ -474,22 +475,22 @@ const Index = () => {
           />
         </Suspense>
 
-        {/* AI Components - Lazy loaded */}
-        <Suspense fallback={<LoadingFallback />}>
-          <AIAssistant events={allEvents} />
-        </Suspense>
+        {/* AI Robot - Lazy loaded with error boundary */}
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            <AIRobot events={allEvents} />
+          </Suspense>
+        </ErrorBoundary>
 
-        <Suspense fallback={<LoadingFallback />}>
-          <AIRobot events={allEvents} />
-        </Suspense>
-
-        <Suspense fallback={<LoadingFallback />}>
-          <VoiceAgent 
-            events={allEvents} 
-            onCreateEvent={handleVoiceCreateEvent}
-            onVoiceCommand={trackVoiceCommand}
-          />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<LoadingFallback />}>
+            <VoiceAgent 
+              events={allEvents} 
+              onCreateEvent={handleVoiceCreateEvent}
+              onVoiceCommand={trackVoiceCommand}
+            />
+          </Suspense>
+        </ErrorBoundary>
 
         {/* Analytics Dashboard - Lazy */}
         <Suspense fallback={<LoadingFallback />}>
