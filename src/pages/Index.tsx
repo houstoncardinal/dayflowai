@@ -581,6 +581,23 @@ const Index = () => {
             pendingCount={pendingCount}
           />
         </Suspense>
+
+        {/* Automation Workflows Panel */}
+        <Suspense fallback={<LoadingFallback />}>
+          <AutomationWorkflows
+            events={allEvents}
+            isOpen={showWorkflows}
+            onClose={() => setShowWorkflows(false)}
+          />
+        </Suspense>
+
+        {/* Integration Hub Panel */}
+        <Suspense fallback={<LoadingFallback />}>
+          <IntegrationHub
+            isOpen={showIntegrations}
+            onClose={() => setShowIntegrations(false)}
+          />
+        </Suspense>
       </div>
     </TooltipProvider>
   );
