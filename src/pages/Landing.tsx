@@ -135,6 +135,9 @@ export default function Landing() {
             <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
             </a>
+            <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              All Plans
+            </Link>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
