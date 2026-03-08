@@ -54,7 +54,7 @@ export default function BookingPage() {
       .eq('slug', slug)
       .eq('is_active', true)
       .single();
-    setLink(data as SchedulingLink | null);
+    setLink(data as unknown as SchedulingLink | null);
     setLoading(false);
   };
 
