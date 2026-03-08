@@ -47,6 +47,10 @@ const SmartSuggestions = lazy(() => import('@/components/SmartSuggestions').then
 const CommandHub = lazy(() => import('@/components/CommandHub').then(m => ({ default: m.default })));
 const AutomationWorkflows = lazy(() => import('@/components/AutomationWorkflows').then(m => ({ default: m.default })));
 const IntegrationHub = lazy(() => import('@/components/IntegrationHub').then(m => ({ default: m.default })));
+const SchedulingLinks = lazy(() => import('@/components/SchedulingLinks'));
+const TeamWorkspace = lazy(() => import('@/components/TeamWorkspace'));
+const MeetingIntelligence = lazy(() => import('@/components/MeetingIntelligence'));
+const APIWebhooks = lazy(() => import('@/components/APIWebhooks'));
 
 import { useSmartSuggestions } from '@/hooks/useSmartSuggestions';
 
