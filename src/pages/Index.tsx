@@ -487,15 +487,26 @@ const Index = () => {
           </motion.main>
         </div>
 
-        {/* Quick Actions FAB - Lazy */}
+        {/* Command Hub FAB - Lazy */}
         <Suspense fallback={<LoadingFallback />}>
-          <QuickActions
+          <CommandHub
+            events={allEvents}
             onAddEvent={() => setIsAddEventOpen(true)}
             onOpenVoice={() => setIsVoiceActive(true)}
             onOpenAnalytics={() => setShowAnalytics(true)}
             onOpenCalendarSync={() => setShowCalendarSync(true)}
-            onOpenAI={() => {}}
+            onOpenSuggestions={() => setIsSuggestionsOpen(true)}
+            onOpenWorkflows={() => setShowWorkflows(true)}
+            onOpenIntegrations={() => setShowIntegrations(true)}
+            onQuickAction={(action) => {
+              if (action === 'morning-prep' || action === 'day-wrap') {
+                setShowWorkflows(true);
+              } else if (action.startsWith('prep-event-')) {
+                setIsSuggestionsOpen(true);
+              }
+            }}
             isVoiceActive={isVoiceActive}
+            pendingSuggestions={pendingCount}
           />
         </Suspense>
 
