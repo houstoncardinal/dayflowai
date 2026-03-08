@@ -82,6 +82,8 @@ const Index = () => {
   // Analytics and Sync modals
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCalendarSync, setShowCalendarSync] = useState(false);
+  const [showWorkflows, setShowWorkflows] = useState(false);
+  const [showIntegrations, setShowIntegrations] = useState(false);
   
   // Voice and AI states
   const [isVoiceActive, setIsVoiceActive] = useState(false);
