@@ -6,12 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// ============================================================
-// RATE LIMITING (in-memory, per-user, resets on function cold start)
-// ============================================================
+// ── Rate Limiting ──────────────────────────────────────────────────
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_MAX = 30; // requests per window
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_WINDOW_MS = 60_000;
 
 function checkRateLimit(userId: string): boolean {
   const now = Date.now();
@@ -25,88 +23,54 @@ function checkRateLimit(userId: string): boolean {
   return true;
 }
 
-// ============================================================
-// TYPES
-// ============================================================
-
-interface Message {
-  role: "user" | "assistant" | "system";
-  content: string;
-}
-
+// ── Types ──────────────────────────────────────────────────────────
+interface Message { role: "user" | "assistant" | "system"; content: string; }
 interface CalendarEvent {
-  id: string;
-  title: string;
-  event_date: string;
-  start_time?: string;
-  end_time?: string;
-  description?: string;
-  all_day?: boolean;
+  id: string; title: string; event_date: string;
+  start_time?: string; end_time?: string; description?: string; all_day?: boolean;
 }
-
 interface AgentTask {
-  id: string;
-  type: string;
-  title: string;
-  eventId?: string;
-  eventTitle?: string;
-  context?: string;
+  id: string; type: string; title: string;
+  eventId?: string; eventTitle?: string; context?: string;
 }
-
 interface RequestBody {
-  messages: Message[];
-  events?: CalendarEvent[];
+  messages: Message[]; events?: CalendarEvent[];
   action?: "chat" | "analyze" | "execute_task" | "orchestrate" | "prioritize" | "enrich_context";
-  task?: AgentTask;
-  agentTeam?: string[];
-  tasks?: AgentTask[];
+  task?: AgentTask; agentTeam?: string[]; tasks?: AgentTask[];
 }
 
-// ============================================================
-// INPUT VALIDATION
-// ============================================================
+// ── Validation ─────────────────────────────────────────────────────
 function validateInput(body: RequestBody): string | null {
   if (!body || typeof body !== 'object') return 'Invalid request body';
-  
   const validActions = ['chat', 'analyze', 'execute_task', 'orchestrate', 'prioritize', 'enrich_context'];
   if (body.action && !validActions.includes(body.action)) return 'Invalid action';
-  
   if (body.messages && !Array.isArray(body.messages)) return 'Messages must be an array';
   if (body.messages?.length > 50) return 'Too many messages (max 50)';
-  
   for (const msg of (body.messages || [])) {
     if (typeof msg.content !== 'string') return 'Message content must be a string';
     if (msg.content.length > 10000) return 'Message too long (max 10000 chars)';
     if (!['user', 'assistant', 'system'].includes(msg.role)) return 'Invalid message role';
   }
-  
   if (body.events && body.events.length > 100) return 'Too many events (max 100)';
-  
-  if (body.task) {
-    if (typeof body.task.title !== 'string' || body.task.title.length > 500) return 'Invalid task title';
-  }
-  
+  if (body.task && (typeof body.task.title !== 'string' || body.task.title.length > 500)) return 'Invalid task title';
   return null;
 }
 
-// ============================================================
-// TOOL DEFINITIONS
-// ============================================================
-
+// ── Tool Definitions ───────────────────────────────────────────────
 const agentTools = [
   {
     type: "function",
     function: {
       name: "generate_meeting_agenda",
-      description: "Generate a comprehensive meeting agenda with timing, objectives, and preparation items.",
+      description: "Generate a comprehensive meeting agenda with timing, objectives, and preparation items. Include chain-of-thought reasoning about meeting goals, attendee needs, and optimal structure.",
       parameters: {
         type: "object",
         properties: {
-          reasoning: { type: "string", description: "Step-by-step reasoning about meeting goals" },
+          reasoning: { type: "string", description: "Step-by-step reasoning about meeting goals, context, and optimal structure" },
           title: { type: "string" },
           duration_minutes: { type: "number" },
-          meeting_type: { type: "string", enum: ["standup", "brainstorm", "decision", "review", "planning", "presentation", "one_on_one", "workshop"] },
-          objectives: { type: "array", items: { type: "string" } },
+          meeting_type: { type: "string", enum: ["standup", "brainstorm", "decision", "review", "planning", "presentation", "one_on_one", "workshop", "retrospective", "kickoff"] },
+          objectives: { type: "array", items: { type: "string" }, description: "3-5 specific, measurable objectives" },
           agenda_items: {
             type: "array",
             items: {
@@ -117,13 +81,22 @@ const agentTools = [
                 owner: { type: "string" },
                 objective: { type: "string" },
                 discussion_points: { type: "array", items: { type: "string" } },
-                expected_outcome: { type: "string" }
+                expected_outcome: { type: "string" },
+                decision_needed: { type: "boolean" }
               },
               required: ["topic", "duration_minutes", "expected_outcome"]
             }
           },
-          preparation_needed: { type: "array", items: { type: "object", properties: { task: { type: "string" }, importance: { type: "string" } }, required: ["task"] } },
+          preparation_needed: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: { task: { type: "string" }, importance: { type: "string", enum: ["critical", "recommended", "optional"] }, estimated_minutes: { type: "number" } },
+              required: ["task", "importance"]
+            }
+          },
           success_metrics: { type: "array", items: { type: "string" } },
+          energy_level: { type: "string", enum: ["high_energy", "moderate", "low_energy"], description: "Recommended energy level for this meeting based on type and time" },
         },
         required: ["reasoning", "title", "meeting_type", "objectives", "agenda_items"]
       }
@@ -133,7 +106,7 @@ const agentTools = [
     type: "function",
     function: {
       name: "draft_follow_up_email",
-      description: "Draft a professional follow-up email with action items",
+      description: "Draft a professional follow-up email with structured action items, clear ownership, and next steps",
       parameters: {
         type: "object",
         properties: {
@@ -141,21 +114,27 @@ const agentTools = [
           subject: { type: "string" },
           tone: { type: "string", enum: ["formal", "professional", "friendly", "urgent"] },
           greeting: { type: "string" },
-          summary: { type: "string" },
-          executive_summary: { type: "string" },
+          executive_summary: { type: "string", description: "2-3 sentence summary of what was discussed/decided" },
           key_decisions: { type: "array", items: { type: "string" } },
           action_items: {
             type: "array",
             items: {
               type: "object",
-              properties: { task: { type: "string" }, owner: { type: "string" }, due_date: { type: "string" }, priority: { type: "string" } },
-              required: ["task"]
+              properties: {
+                task: { type: "string" },
+                owner: { type: "string" },
+                due_date: { type: "string" },
+                priority: { type: "string", enum: ["high", "medium", "low"] },
+                depends_on: { type: "string" }
+              },
+              required: ["task", "priority"]
             }
           },
-          next_steps: { type: "string" },
+          blockers: { type: "array", items: { type: "string" } },
+          next_meeting: { type: "string" },
           closing: { type: "string" }
         },
-        required: ["reasoning", "subject", "tone", "action_items"]
+        required: ["reasoning", "subject", "tone", "executive_summary", "action_items"]
       }
     }
   },
@@ -163,7 +142,7 @@ const agentTools = [
     type: "function",
     function: {
       name: "create_research_brief",
-      description: "Compile a research brief with structured insights",
+      description: "Compile a research brief with structured insights and actionable recommendations",
       parameters: {
         type: "object",
         properties: {
@@ -173,12 +152,12 @@ const agentTools = [
           executive_summary: { type: "string" },
           key_findings: {
             type: "array",
-            items: { type: "object", properties: { finding: { type: "string" }, confidence_level: { type: "string" } }, required: ["finding", "confidence_level"] }
+            items: { type: "object", properties: { finding: { type: "string" }, confidence_level: { type: "string", enum: ["high", "medium", "low"] }, source_type: { type: "string" } }, required: ["finding", "confidence_level"] }
           },
           questions_to_explore: { type: "array", items: { type: "string" } },
           recommended_actions: {
             type: "array",
-            items: { type: "object", properties: { action: { type: "string" }, impact: { type: "string" } }, required: ["action", "impact"] }
+            items: { type: "object", properties: { action: { type: "string" }, impact: { type: "string", enum: ["high", "medium", "low"] }, effort: { type: "string", enum: ["low", "medium", "high"] } }, required: ["action", "impact"] }
           }
         },
         required: ["reasoning", "topic", "executive_summary", "key_findings", "recommended_actions"]
@@ -189,27 +168,40 @@ const agentTools = [
     type: "function",
     function: {
       name: "analyze_schedule",
-      description: "Perform deep schedule analysis with pattern recognition and optimization",
+      description: "Deep schedule analysis with pattern recognition, burnout detection, focus-time optimization, and context-switching cost analysis",
       parameters: {
         type: "object",
         properties: {
-          reasoning: { type: "string" },
-          schedule_health_score: { type: "number" },
+          reasoning: { type: "string", description: "Detailed analysis of schedule patterns, energy flow, and optimization opportunities" },
+          schedule_health_score: { type: "number", description: "0-100 composite score accounting for focus time, fragmentation, and meeting load" },
           meeting_load: { type: "string", enum: ["light", "moderate", "heavy", "overloaded"] },
+          burnout_risk: { type: "string", enum: ["low", "moderate", "high", "critical"] },
+          focus_fragmentation_score: { type: "number", description: "0-100 how fragmented the free time is" },
+          context_switching_cost: { type: "string", description: "Estimated productivity loss from frequent task switching" },
           conflicts: {
             type: "array",
-            items: { type: "object", properties: { event1: { type: "string" }, event2: { type: "string" }, conflict_type: { type: "string" } } }
+            items: { type: "object", properties: { event1: { type: "string" }, event2: { type: "string" }, conflict_type: { type: "string", enum: ["overlap", "insufficient_gap", "energy_mismatch"] }, resolution: { type: "string" } } }
           },
           optimization_suggestions: {
             type: "array",
-            items: { type: "object", properties: { suggestion: { type: "string" }, impact: { type: "string" }, effort: { type: "string" } }, required: ["suggestion", "impact"] }
+            items: {
+              type: "object",
+              properties: {
+                suggestion: { type: "string" },
+                impact: { type: "string", enum: ["high", "medium", "low"] },
+                effort: { type: "string", enum: ["easy", "moderate", "hard"] },
+                category: { type: "string", enum: ["focus_time", "meeting_batching", "energy_management", "conflict_resolution", "break_management"] }
+              },
+              required: ["suggestion", "impact", "category"]
+            }
           },
           recommended_focus_blocks: {
             type: "array",
-            items: { type: "object", properties: { day: { type: "string" }, time_slot: { type: "string" }, duration_hours: { type: "number" } } }
-          }
+            items: { type: "object", properties: { day: { type: "string" }, time_slot: { type: "string" }, duration_hours: { type: "number" }, optimal_for: { type: "string" } } }
+          },
+          energy_flow: { type: "string", description: "Analysis of how energy levels likely flow through the week based on meeting patterns" }
         },
-        required: ["reasoning", "schedule_health_score", "meeting_load", "optimization_suggestions"]
+        required: ["reasoning", "schedule_health_score", "meeting_load", "burnout_risk", "optimization_suggestions"]
       }
     }
   },
@@ -217,13 +209,13 @@ const agentTools = [
     type: "function",
     function: {
       name: "generate_documentation",
-      description: "Generate structured documentation",
+      description: "Generate structured documentation with clear sections",
       parameters: {
         type: "object",
         properties: {
           reasoning: { type: "string" },
           title: { type: "string" },
-          type: { type: "string", enum: ["meeting_notes", "summary", "report", "outline", "decision_record"] },
+          type: { type: "string", enum: ["meeting_notes", "summary", "report", "outline", "decision_record", "weekly_report"] },
           date: { type: "string" },
           tldr: { type: "string" },
           sections: {
@@ -240,12 +232,12 @@ const agentTools = [
     type: "function",
     function: {
       name: "create_communication",
-      description: "Draft professional communications",
+      description: "Draft professional communications optimized for clarity and action",
       parameters: {
         type: "object",
         properties: {
           reasoning: { type: "string" },
-          type: { type: "string", enum: ["invitation", "update", "reminder", "confirmation", "request", "announcement"] },
+          type: { type: "string", enum: ["invitation", "update", "reminder", "confirmation", "request", "announcement", "reschedule"] },
           channel: { type: "string", enum: ["email", "slack", "teams"] },
           subject: { type: "string" },
           structure: {
@@ -264,7 +256,7 @@ const agentTools = [
     type: "function",
     function: {
       name: "orchestrate_agents",
-      description: "Coordinate multiple agents working as a team",
+      description: "Coordinate multiple agents working as a team on complex tasks",
       parameters: {
         type: "object",
         properties: {
@@ -302,10 +294,7 @@ const agentTools = [
   }
 ];
 
-// ============================================================
-// HELPERS
-// ============================================================
-
+// ── Helpers ────────────────────────────────────────────────────────
 function getToolForTaskType(taskType: string): string {
   const mapping: Record<string, string> = {
     'preparation': 'generate_meeting_agenda',
@@ -319,45 +308,75 @@ function getToolForTaskType(taskType: string): string {
 }
 
 function buildSystemPrompt(events: CalendarEvent[], currentDate: Date): string {
-  const scheduleContext = events.length > 0 
-    ? `\n## User's Calendar (${events.length} events):\n${events.map((e: CalendarEvent) => 
-        `- **${e.title}** on ${e.event_date}${e.start_time ? ` at ${e.start_time}` : ' (all day)'}${e.end_time ? `-${e.end_time}` : ''}${e.description ? `\n  └ ${e.description}` : ''}`
+  // Pre-compute schedule intelligence for richer context
+  const todayStr = currentDate.toISOString().split('T')[0];
+  const todayEvents = events.filter(e => e.event_date === todayStr);
+  const meetings = todayEvents.filter(e => {
+    const lower = e.title.toLowerCase();
+    return ['meeting', 'call', 'sync', 'standup', '1:1', 'review', 'interview', 'demo', 'presentation'].some(k => lower.includes(k));
+  });
+
+  // Compute gaps for focus-block suggestions
+  const timedEvents = todayEvents
+    .filter(e => e.start_time && e.end_time)
+    .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+
+  let gapInfo = '';
+  if (timedEvents.length > 0) {
+    const gaps: string[] = [];
+    let cursor = '09:00';
+    for (const e of timedEvents) {
+      if (e.start_time! > cursor) gaps.push(`${cursor}–${e.start_time}`);
+      if (e.end_time! > cursor) cursor = e.end_time!;
+    }
+    if (cursor < '17:00') gaps.push(`${cursor}–17:00`);
+    if (gaps.length > 0) gapInfo = `\n## Free Slots Today: ${gaps.join(', ')}`;
+  }
+
+  const scheduleContext = events.length > 0
+    ? `\n## User's Calendar (${events.length} events):\n${events.map(e =>
+        `- **${e.title}** on ${e.event_date}${e.start_time ? ` at ${e.start_time}` : ' (all day)'}${e.end_time ? `–${e.end_time}` : ''}${e.description ? `\n  └ ${e.description}` : ''}`
       ).join('\n')}\n`
     : '';
 
-  return `You are Dayflow AI, an autonomous agent orchestrator for calendar and productivity management. You lead a team of specialized AI agents.
+  return `You are Dayflow AI, an elite autonomous agent orchestrator for calendar and productivity management. You think deeply, reason step-by-step, and provide actionable, specific outputs.
 
 ## Current Context
 - Date: ${currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
 - Time: ${currentDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+- Today: ${todayEvents.length} events (${meetings.length} meetings)
+${gapInfo}
 ${scheduleContext}
 
 ## Your Agent Team
 - 📋 Prep Agent: Meeting agendas, research briefs, checklists
 - ✉️ Follow-up Agent: Follow-up emails, action items, reminders
-- 📅 Schedule Agent: Schedule optimization, conflict detection, focus blocks
+- 📅 Schedule Agent: Schedule optimization, conflict detection, focus blocks, burnout prevention
 - 🔍 Research Agent: Research briefs, context gathering
 - 💬 Comms Agent: Drafting communications, invitations
 - 📝 Docs Agent: Meeting notes, summaries, documentation
 
-Always include chain-of-thought reasoning. Be specific and actionable.`;
+## Quality Standards
+1. Always include detailed chain-of-thought reasoning
+2. Be specific — use real event names, times, and context from the calendar
+3. Provide actionable outputs that can be used immediately
+4. Consider energy levels: schedule demanding tasks during peak hours
+5. Flag burnout risks when meeting load is heavy
+6. Suggest meeting batching to reduce context switching`;
 }
 
-// ============================================================
-// MAIN HANDLER
-// ============================================================
-
+// ── Main Handler ───────────────────────────────────────────────────
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // ---- AUTH: Validate JWT ----
+    // Auth
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
@@ -370,23 +389,21 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
     const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } 
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
     const userId = claimsData.claims.sub as string;
 
-    // ---- RATE LIMIT ----
     if (!checkRateLimit(userId)) {
-      return new Response(JSON.stringify({ 
-        error: "Rate limit exceeded. Please wait a moment.", code: "RATE_LIMITED" 
+      return new Response(JSON.stringify({
+        error: "Rate limit exceeded. Please wait a moment.", code: "RATE_LIMITED"
       }), {
         status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // ---- PARSE & VALIDATE INPUT ----
     const body = await req.json() as RequestBody;
     const validationError = validateInput(body);
     if (validationError) {
@@ -395,11 +412,12 @@ serve(async (req) => {
       });
     }
 
-    const { messages, events = [], action = "chat", task, agentTeam, tasks } = body;
+    const { messages, events = [], action = "chat", task, agentTeam } = body;
 
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY is not configured.");
+    // ── Use Lovable AI Gateway ──
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured.");
     }
 
     const currentDate = new Date();
@@ -408,7 +426,7 @@ serve(async (req) => {
     console.log(`[AI Assistant] User: ${userId}, Action: ${action}, Events: ${events.length}`);
 
     let requestBody: any = {
-      model: "gpt-4o",
+      model: "google/gemini-3-flash-preview",
       messages: [
         { role: "system", content: systemPrompt },
         ...messages,
@@ -420,7 +438,10 @@ serve(async (req) => {
       const toolName = getToolForTaskType(task.type);
       requestBody.tools = agentTools.filter(t => t.function.name === toolName);
       requestBody.tool_choice = { type: "function", function: { name: toolName } };
-      requestBody.messages.push({ role: "user", content: `Execute: ${task.title}\nType: ${task.type}\n${task.eventTitle ? `Event: ${task.eventTitle}` : ''}\n${task.context || ''}` });
+      requestBody.messages.push({
+        role: "user",
+        content: `Execute this task with maximum quality and specificity:\n\n**Task:** ${task.title}\n**Type:** ${task.type}\n${task.eventTitle ? `**Event:** ${task.eventTitle}` : ''}\n${task.context || ''}\n\nProvide detailed, actionable output. Reference specific events, times, and context from the calendar.`
+      });
     }
 
     if (action === "orchestrate" && agentTeam) {
@@ -433,17 +454,28 @@ serve(async (req) => {
       const analysisTool = agentTools.find(t => t.function.name === "analyze_schedule");
       requestBody.tools = analysisTool ? [analysisTool] : [];
       requestBody.tool_choice = { type: "function", function: { name: "analyze_schedule" } };
-      requestBody.messages.push({ role: "user", content: `Analyze my schedule for the next 7 days. Identify patterns, conflicts, optimization opportunities, and recommended focus blocks.` });
+      requestBody.messages.push({
+        role: "user",
+        content: `Perform a comprehensive schedule analysis for the next 7 days. Include:
+1. Pattern recognition — recurring meeting patterns, busiest times, quietest periods
+2. Conflict detection — overlapping events and insufficient gaps
+3. Burnout risk assessment — back-to-back meetings, total meeting load
+4. Focus time optimization — best slots for deep work
+5. Context-switching cost — how fragmented the schedule is
+6. Energy flow analysis — how energy likely fluctuates through the week
+7. Specific, actionable optimization suggestions with effort/impact ratings`
+      });
     }
 
     if (action === "chat") {
       requestBody.stream = true;
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    // Call Lovable AI Gateway
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(requestBody),
@@ -451,19 +483,21 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("[AI Assistant] OpenAI error:", response.status, errorText);
-      
-      const statusMap: Record<number, { error: string; code: string }> = {
-        429: { error: "Rate limit exceeded. Please try again in a moment.", code: "RATE_LIMITED" },
-        401: { error: "Invalid API key configuration.", code: "AUTH_ERROR" },
-        402: { error: "Billing issue with AI provider.", code: "BILLING_ERROR" },
-        403: { error: "Billing issue with AI provider.", code: "BILLING_ERROR" },
-      };
-      
-      const mapped = statusMap[response.status] || { error: "AI service temporarily unavailable", code: "SERVICE_ERROR" };
-      return new Response(JSON.stringify(mapped), {
-        status: response.status >= 500 ? 500 : response.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      console.error("[AI Assistant] Gateway error:", response.status, errorText);
+
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Rate limits exceeded, please try again later.", code: "RATE_LIMITED" }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "AI usage limit reached. Please add credits in Settings → Workspace → Usage.", code: "PAYMENT_REQUIRED" }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ error: "AI service temporarily unavailable", code: "SERVICE_ERROR" }), {
+        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
@@ -510,7 +544,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error("[AI Assistant] Error:", error);
-    return new Response(JSON.stringify({ 
+    return new Response(JSON.stringify({
       error: error instanceof Error ? error.message : "Unknown error",
       code: "UNKNOWN_ERROR"
     }), {
