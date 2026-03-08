@@ -43,8 +43,10 @@ const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ def
 const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => ({ default: m.DailyBriefing })));
 const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const CalendarSync = lazy(() => import('@/components/CalendarSync').then(m => ({ default: m.CalendarSync })));
-const QuickActions = lazy(() => import('@/components/QuickActions').then(m => ({ default: m.QuickActions })));
 const SmartSuggestions = lazy(() => import('@/components/SmartSuggestions').then(m => ({ default: m.default })));
+const CommandHub = lazy(() => import('@/components/CommandHub').then(m => ({ default: m.default })));
+const AutomationWorkflows = lazy(() => import('@/components/AutomationWorkflows').then(m => ({ default: m.default })));
+const IntegrationHub = lazy(() => import('@/components/IntegrationHub').then(m => ({ default: m.default })));
 
 import { useSmartSuggestions } from '@/hooks/useSmartSuggestions';
 
