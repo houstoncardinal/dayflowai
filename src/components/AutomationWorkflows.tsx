@@ -385,7 +385,4 @@ export function AutomationWorkflows({ events, isOpen, onClose }: AutomationWorkf
   );
 }
 
-// Need BarChart3 import
-import { BarChart3 } from 'lucide-react';
-
 export default AutomationWorkflows;
