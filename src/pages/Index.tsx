@@ -19,7 +19,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut, Menu, Bell, BellOff } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
