@@ -18,8 +18,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
+import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut, Menu, Bell, BellOff } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -43,6 +44,9 @@ const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => 
 const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const CalendarSync = lazy(() => import('@/components/CalendarSync').then(m => ({ default: m.CalendarSync })));
 const QuickActions = lazy(() => import('@/components/QuickActions').then(m => ({ default: m.QuickActions })));
+const SmartSuggestions = lazy(() => import('@/components/SmartSuggestions').then(m => ({ default: m.default })));
+
+import { useSmartSuggestions } from '@/hooks/useSmartSuggestions';
 
 // Minimal loading fallback
 const LoadingFallback = () => null;
@@ -97,7 +101,18 @@ const Index = () => {
   } = useEvents();
 
   const { trackEventCreated, trackVoiceCommand } = useAnalyticsTracking();
-  
+
+  // Smart Suggestions
+  const {
+    suggestions,
+    isOpen: isSuggestionsOpen,
+    setIsOpen: setIsSuggestionsOpen,
+    urgentCount,
+    pendingCount,
+    executeSuggestion,
+    runAll: runAllSuggestions,
+    dismissSuggestion,
+  } = useSmartSuggestions(allEvents);
   // Notifications
   const { permission: notificationPermission, requestPermission } = useNotifications({
     events: allEvents,
@@ -359,6 +374,34 @@ const Index = () => {
                     : 'Enable notifications'}
                 </TooltipContent>
               </Tooltip>
+              {/* Smart Suggestions trigger */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSuggestionsOpen(true)}
+                    className="relative text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {pendingCount > 0 && (
+                      <span className={cn(
+                        "absolute -top-0.5 -right-0.5 h-4 min-w-[16px] rounded-full text-[10px] font-bold flex items-center justify-center text-white px-1",
+                        urgentCount > 0
+                          ? "bg-event-coral animate-pulse"
+                          : "bg-event-amber"
+                      )}>
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {pendingCount > 0
+                    ? `${pendingCount} smart suggestions available`
+                    : 'Smart Suggestions'}
+                </TooltipContent>
+              </Tooltip>
               <ThemeToggle />
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -508,6 +551,19 @@ const Index = () => {
             isOpen={showCalendarSync} 
             onClose={() => setShowCalendarSync(false)}
             onImportEvents={handleImportEvents}
+          />
+        </Suspense>
+
+        {/* Smart Suggestions Panel */}
+        <Suspense fallback={<LoadingFallback />}>
+          <SmartSuggestions
+            suggestions={suggestions}
+            isOpen={isSuggestionsOpen}
+            onClose={() => setIsSuggestionsOpen(false)}
+            onExecute={executeSuggestion}
+            onRunAll={runAllSuggestions}
+            onDismiss={dismissSuggestion}
+            pendingCount={pendingCount}
           />
         </Suspense>
       </div>
