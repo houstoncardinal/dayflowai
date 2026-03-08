@@ -47,6 +47,10 @@ const SmartSuggestions = lazy(() => import('@/components/SmartSuggestions').then
 const CommandHub = lazy(() => import('@/components/CommandHub').then(m => ({ default: m.default })));
 const AutomationWorkflows = lazy(() => import('@/components/AutomationWorkflows').then(m => ({ default: m.default })));
 const IntegrationHub = lazy(() => import('@/components/IntegrationHub').then(m => ({ default: m.default })));
+const SchedulingLinks = lazy(() => import('@/components/SchedulingLinks'));
+const TeamWorkspace = lazy(() => import('@/components/TeamWorkspace'));
+const MeetingIntelligence = lazy(() => import('@/components/MeetingIntelligence'));
+const APIWebhooks = lazy(() => import('@/components/APIWebhooks'));
 
 import { useSmartSuggestions } from '@/hooks/useSmartSuggestions';
 
@@ -84,6 +88,11 @@ const Index = () => {
   const [showCalendarSync, setShowCalendarSync] = useState(false);
   const [showWorkflows, setShowWorkflows] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
+  const [showSchedulingLinks, setShowSchedulingLinks] = useState(false);
+  const [showTeamWorkspace, setShowTeamWorkspace] = useState(false);
+  const [showMeetingIntel, setShowMeetingIntel] = useState(false);
+  const [meetingIntelEvent, setMeetingIntelEvent] = useState<CalendarEvent | null>(null);
+  const [showAPIWebhooks, setShowAPIWebhooks] = useState(false);
   
   // Voice and AI states
   const [isVoiceActive, setIsVoiceActive] = useState(false);
@@ -498,6 +507,9 @@ const Index = () => {
             onOpenSuggestions={() => setIsSuggestionsOpen(true)}
             onOpenWorkflows={() => setShowWorkflows(true)}
             onOpenIntegrations={() => setShowIntegrations(true)}
+            onOpenSchedulingLinks={() => setShowSchedulingLinks(true)}
+            onOpenTeamWorkspace={() => setShowTeamWorkspace(true)}
+            onOpenAPIWebhooks={() => setShowAPIWebhooks(true)}
             onQuickAction={(action) => {
               if (action === 'morning-prep' || action === 'day-wrap') {
                 setShowWorkflows(true);
@@ -596,6 +608,39 @@ const Index = () => {
           <IntegrationHub
             isOpen={showIntegrations}
             onClose={() => setShowIntegrations(false)}
+          />
+        </Suspense>
+
+        {/* Scheduling Links */}
+        <Suspense fallback={<LoadingFallback />}>
+          <SchedulingLinks
+            isOpen={showSchedulingLinks}
+            onClose={() => setShowSchedulingLinks(false)}
+          />
+        </Suspense>
+
+        {/* Team Workspace */}
+        <Suspense fallback={<LoadingFallback />}>
+          <TeamWorkspace
+            isOpen={showTeamWorkspace}
+            onClose={() => setShowTeamWorkspace(false)}
+          />
+        </Suspense>
+
+        {/* Meeting Intelligence */}
+        <Suspense fallback={<LoadingFallback />}>
+          <MeetingIntelligence
+            event={meetingIntelEvent}
+            isOpen={showMeetingIntel}
+            onClose={() => { setShowMeetingIntel(false); setMeetingIntelEvent(null); }}
+          />
+        </Suspense>
+
+        {/* API & Webhooks */}
+        <Suspense fallback={<LoadingFallback />}>
+          <APIWebhooks
+            isOpen={showAPIWebhooks}
+            onClose={() => setShowAPIWebhooks(false)}
           />
         </Suspense>
       </div>

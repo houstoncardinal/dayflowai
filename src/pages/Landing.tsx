@@ -106,9 +106,11 @@ const comparisonFeatures = [
   { name: 'Real-time sync', free: true, pro: true },
   { name: 'Voice commands', free: false, pro: true },
   { name: 'AI assistant', free: 'Basic', pro: 'Advanced' },
-  { name: 'Proactive alerts', free: false, pro: true },
+  { name: 'AI meeting notes', free: false, pro: true },
+  { name: 'Scheduling links', free: '1 link', pro: 'Unlimited' },
+  { name: 'Team workspaces', free: false, pro: 'Team+' },
+  { name: 'API & Webhooks', free: false, pro: 'Team+' },
   { name: 'Analytics dashboard', free: false, pro: true },
-  { name: 'Calendar integrations', free: false, pro: true },
   { name: 'Priority support', free: false, pro: true },
 ];
 
@@ -135,6 +137,9 @@ export default function Landing() {
             <a href="#pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Pricing
             </a>
+            <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              All Plans
+            </Link>
           </div>
 
           <div className="flex items-center gap-2 md:gap-3">
@@ -418,13 +423,18 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold mb-1">Pro</h3>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold">$9</span>
+                <span className="text-4xl font-bold">$19</span>
                 <span className="text-background/60">/month</span>
               </div>
-              <p className="text-sm text-background/60 mb-6">For power users</p>
+              <p className="text-sm text-background/60 mb-4">For power users</p>
               <Link to="/auth">
                 <Button className="w-full h-11 rounded-xl bg-background text-foreground hover:bg-background/90">
                   Start Free Trial
+                </Button>
+              </Link>
+              <Link to="/pricing" className="block mt-2">
+                <Button variant="link" className="w-full text-background/60 hover:text-background text-xs">
+                  See all plans →
                 </Button>
               </Link>
             </motion.div>

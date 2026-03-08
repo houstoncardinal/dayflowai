@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Mic, BarChart3, RefreshCw, Sparkles, Zap, Sun, Moon, Coffee,
   ChevronUp, Brain, Calendar, Mail, FileText, Clock, Target,
-  Workflow, Link2, Bot
+  Workflow, Link2, Bot, Users, Key
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,9 @@ interface CommandHubProps {
   onOpenSuggestions: () => void;
   onOpenWorkflows: () => void;
   onOpenIntegrations: () => void;
+  onOpenSchedulingLinks: () => void;
+  onOpenTeamWorkspace: () => void;
+  onOpenAPIWebhooks: () => void;
   onQuickAction: (action: string) => void;
   isVoiceActive?: boolean;
   pendingSuggestions?: number;
@@ -44,6 +47,9 @@ export function CommandHub({
   onOpenSuggestions,
   onOpenWorkflows,
   onOpenIntegrations,
+  onOpenSchedulingLinks,
+  onOpenTeamWorkspace,
+  onOpenAPIWebhooks,
   onQuickAction,
   isVoiceActive = false,
   pendingSuggestions = 0,
@@ -150,6 +156,26 @@ export function CommandHub({
       pulse: isVoiceActive,
     });
 
+    // Scheduling Links
+    actions.push({
+      id: 'scheduling-links',
+      icon: Calendar,
+      label: 'Scheduling Links',
+      description: 'Share booking pages',
+      color: 'from-event-emerald to-green-600',
+      onClick: onOpenSchedulingLinks,
+    });
+
+    // Team Workspace
+    actions.push({
+      id: 'team',
+      icon: Users,
+      label: 'Team Workspace',
+      description: 'Shared calendars & members',
+      color: 'from-event-violet to-purple-600',
+      onClick: onOpenTeamWorkspace,
+    });
+
     // Integrations
     actions.push({
       id: 'integrations',
@@ -170,6 +196,16 @@ export function CommandHub({
       onClick: onOpenAnalytics,
     });
 
+    // API & Webhooks
+    actions.push({
+      id: 'api',
+      icon: Key,
+      label: 'API & Webhooks',
+      description: 'Developer tools',
+      color: 'from-gray-600 to-gray-800',
+      onClick: onOpenAPIWebhooks,
+    });
+
     // Sync
     actions.push({
       id: 'sync',
@@ -181,7 +217,7 @@ export function CommandHub({
     });
 
     return actions;
-  }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onQuickAction]);
+  }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onQuickAction]);
 
   return (
     <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
