@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, Play, CheckCircle2, Loader2, Coffee, Moon, Target,
   Zap, ArrowRight, ChevronDown, ChevronRight, RotateCcw,
-  Sparkles, Clock, Brain, Mail, FileText, Calendar
+  Sparkles, Clock, Brain, Mail, FileText, Calendar, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
