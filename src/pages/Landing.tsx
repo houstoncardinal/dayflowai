@@ -106,9 +106,11 @@ const comparisonFeatures = [
   { name: 'Real-time sync', free: true, pro: true },
   { name: 'Voice commands', free: false, pro: true },
   { name: 'AI assistant', free: 'Basic', pro: 'Advanced' },
-  { name: 'Proactive alerts', free: false, pro: true },
+  { name: 'AI meeting notes', free: false, pro: true },
+  { name: 'Scheduling links', free: '1 link', pro: 'Unlimited' },
+  { name: 'Team workspaces', free: false, pro: 'Team+' },
+  { name: 'API & Webhooks', free: false, pro: 'Team+' },
   { name: 'Analytics dashboard', free: false, pro: true },
-  { name: 'Calendar integrations', free: false, pro: true },
   { name: 'Priority support', free: false, pro: true },
 ];
 
