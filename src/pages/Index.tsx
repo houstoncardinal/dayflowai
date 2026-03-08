@@ -88,6 +88,11 @@ const Index = () => {
   const [showCalendarSync, setShowCalendarSync] = useState(false);
   const [showWorkflows, setShowWorkflows] = useState(false);
   const [showIntegrations, setShowIntegrations] = useState(false);
+  const [showSchedulingLinks, setShowSchedulingLinks] = useState(false);
+  const [showTeamWorkspace, setShowTeamWorkspace] = useState(false);
+  const [showMeetingIntel, setShowMeetingIntel] = useState(false);
+  const [meetingIntelEvent, setMeetingIntelEvent] = useState<CalendarEvent | null>(null);
+  const [showAPIWebhooks, setShowAPIWebhooks] = useState(false);
   
   // Voice and AI states
   const [isVoiceActive, setIsVoiceActive] = useState(false);
