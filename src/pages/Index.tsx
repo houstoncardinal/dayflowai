@@ -607,6 +607,39 @@ const Index = () => {
             onClose={() => setShowIntegrations(false)}
           />
         </Suspense>
+
+        {/* Scheduling Links */}
+        <Suspense fallback={<LoadingFallback />}>
+          <SchedulingLinks
+            isOpen={showSchedulingLinks}
+            onClose={() => setShowSchedulingLinks(false)}
+          />
+        </Suspense>
+
+        {/* Team Workspace */}
+        <Suspense fallback={<LoadingFallback />}>
+          <TeamWorkspace
+            isOpen={showTeamWorkspace}
+            onClose={() => setShowTeamWorkspace(false)}
+          />
+        </Suspense>
+
+        {/* Meeting Intelligence */}
+        <Suspense fallback={<LoadingFallback />}>
+          <MeetingIntelligence
+            event={meetingIntelEvent}
+            isOpen={showMeetingIntel}
+            onClose={() => { setShowMeetingIntel(false); setMeetingIntelEvent(null); }}
+          />
+        </Suspense>
+
+        {/* API & Webhooks */}
+        <Suspense fallback={<LoadingFallback />}>
+          <APIWebhooks
+            isOpen={showAPIWebhooks}
+            onClose={() => setShowAPIWebhooks(false)}
+          />
+        </Suspense>
       </div>
     </TooltipProvider>
   );
