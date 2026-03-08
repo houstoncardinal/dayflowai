@@ -19,6 +19,9 @@ interface CommandHubProps {
   onOpenSuggestions: () => void;
   onOpenWorkflows: () => void;
   onOpenIntegrations: () => void;
+  onOpenSchedulingLinks: () => void;
+  onOpenTeamWorkspace: () => void;
+  onOpenAPIWebhooks: () => void;
   onQuickAction: (action: string) => void;
   isVoiceActive?: boolean;
   pendingSuggestions?: number;
