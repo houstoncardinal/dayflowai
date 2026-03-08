@@ -373,6 +373,34 @@ const Index = () => {
                     : 'Enable notifications'}
                 </TooltipContent>
               </Tooltip>
+              {/* Smart Suggestions trigger */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsSuggestionsOpen(true)}
+                    className="relative text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {pendingCount > 0 && (
+                      <span className={cn(
+                        "absolute -top-0.5 -right-0.5 h-4 min-w-[16px] rounded-full text-[10px] font-bold flex items-center justify-center text-white px-1",
+                        urgentCount > 0
+                          ? "bg-event-coral animate-pulse"
+                          : "bg-event-amber"
+                      )}>
+                        {pendingCount}
+                      </span>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {pendingCount > 0
+                    ? `${pendingCount} smart suggestions available`
+                    : 'Smart Suggestions'}
+                </TooltipContent>
+              </Tooltip>
               <ThemeToggle />
               <Tooltip>
                 <TooltipTrigger asChild>
