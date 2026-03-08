@@ -43,6 +43,9 @@ const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => 
 const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const CalendarSync = lazy(() => import('@/components/CalendarSync').then(m => ({ default: m.CalendarSync })));
 const QuickActions = lazy(() => import('@/components/QuickActions').then(m => ({ default: m.QuickActions })));
+const SmartSuggestions = lazy(() => import('@/components/SmartSuggestions').then(m => ({ default: m.default })));
+
+import { useSmartSuggestions } from '@/hooks/useSmartSuggestions';
 
 // Minimal loading fallback
 const LoadingFallback = () => null;
