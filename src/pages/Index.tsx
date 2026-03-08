@@ -507,6 +507,9 @@ const Index = () => {
             onOpenSuggestions={() => setIsSuggestionsOpen(true)}
             onOpenWorkflows={() => setShowWorkflows(true)}
             onOpenIntegrations={() => setShowIntegrations(true)}
+            onOpenSchedulingLinks={() => setShowSchedulingLinks(true)}
+            onOpenTeamWorkspace={() => setShowTeamWorkspace(true)}
+            onOpenAPIWebhooks={() => setShowAPIWebhooks(true)}
             onQuickAction={(action) => {
               if (action === 'morning-prep' || action === 'day-wrap') {
                 setShowWorkflows(true);
