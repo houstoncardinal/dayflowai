@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
+import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types/calendar';
 import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
