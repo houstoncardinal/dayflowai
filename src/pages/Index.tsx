@@ -553,6 +553,19 @@ const Index = () => {
             onImportEvents={handleImportEvents}
           />
         </Suspense>
+
+        {/* Smart Suggestions Panel */}
+        <Suspense fallback={<LoadingFallback />}>
+          <SmartSuggestions
+            suggestions={suggestions}
+            isOpen={isSuggestionsOpen}
+            onClose={() => setIsSuggestionsOpen(false)}
+            onExecute={executeSuggestion}
+            onRunAll={runAllSuggestions}
+            onDismiss={dismissSuggestion}
+            pendingCount={pendingCount}
+          />
+        </Suspense>
       </div>
     </TooltipProvider>
   );
