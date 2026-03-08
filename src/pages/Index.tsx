@@ -100,7 +100,18 @@ const Index = () => {
   } = useEvents();
 
   const { trackEventCreated, trackVoiceCommand } = useAnalyticsTracking();
-  
+
+  // Smart Suggestions
+  const {
+    suggestions,
+    isOpen: isSuggestionsOpen,
+    setIsOpen: setIsSuggestionsOpen,
+    urgentCount,
+    pendingCount,
+    executeSuggestion,
+    runAll: runAllSuggestions,
+    dismissSuggestion,
+  } = useSmartSuggestions(allEvents);
   // Notifications
   const { permission: notificationPermission, requestPermission } = useNotifications({
     events: allEvents,
