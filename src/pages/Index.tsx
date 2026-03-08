@@ -43,8 +43,10 @@ const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ def
 const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => ({ default: m.DailyBriefing })));
 const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
 const CalendarSync = lazy(() => import('@/components/CalendarSync').then(m => ({ default: m.CalendarSync })));
-const QuickActions = lazy(() => import('@/components/QuickActions').then(m => ({ default: m.QuickActions })));
 const SmartSuggestions = lazy(() => import('@/components/SmartSuggestions').then(m => ({ default: m.default })));
+const CommandHub = lazy(() => import('@/components/CommandHub').then(m => ({ default: m.default })));
+const AutomationWorkflows = lazy(() => import('@/components/AutomationWorkflows').then(m => ({ default: m.default })));
+const IntegrationHub = lazy(() => import('@/components/IntegrationHub').then(m => ({ default: m.default })));
 
 import { useSmartSuggestions } from '@/hooks/useSmartSuggestions';
 
@@ -80,6 +82,8 @@ const Index = () => {
   // Analytics and Sync modals
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showCalendarSync, setShowCalendarSync] = useState(false);
+  const [showWorkflows, setShowWorkflows] = useState(false);
+  const [showIntegrations, setShowIntegrations] = useState(false);
   
   // Voice and AI states
   const [isVoiceActive, setIsVoiceActive] = useState(false);
@@ -483,15 +487,26 @@ const Index = () => {
           </motion.main>
         </div>
 
-        {/* Quick Actions FAB - Lazy */}
+        {/* Command Hub FAB - Lazy */}
         <Suspense fallback={<LoadingFallback />}>
-          <QuickActions
+          <CommandHub
+            events={allEvents}
             onAddEvent={() => setIsAddEventOpen(true)}
             onOpenVoice={() => setIsVoiceActive(true)}
             onOpenAnalytics={() => setShowAnalytics(true)}
             onOpenCalendarSync={() => setShowCalendarSync(true)}
-            onOpenAI={() => {}}
+            onOpenSuggestions={() => setIsSuggestionsOpen(true)}
+            onOpenWorkflows={() => setShowWorkflows(true)}
+            onOpenIntegrations={() => setShowIntegrations(true)}
+            onQuickAction={(action) => {
+              if (action === 'morning-prep' || action === 'day-wrap') {
+                setShowWorkflows(true);
+              } else if (action.startsWith('prep-event-')) {
+                setIsSuggestionsOpen(true);
+              }
+            }}
             isVoiceActive={isVoiceActive}
+            pendingSuggestions={pendingCount}
           />
         </Suspense>
 
@@ -564,6 +579,23 @@ const Index = () => {
             onRunAll={runAllSuggestions}
             onDismiss={dismissSuggestion}
             pendingCount={pendingCount}
+          />
+        </Suspense>
+
+        {/* Automation Workflows Panel */}
+        <Suspense fallback={<LoadingFallback />}>
+          <AutomationWorkflows
+            events={allEvents}
+            isOpen={showWorkflows}
+            onClose={() => setShowWorkflows(false)}
+          />
+        </Suspense>
+
+        {/* Integration Hub Panel */}
+        <Suspense fallback={<LoadingFallback />}>
+          <IntegrationHub
+            isOpen={showIntegrations}
+            onClose={() => setShowIntegrations(false)}
           />
         </Suspense>
       </div>
