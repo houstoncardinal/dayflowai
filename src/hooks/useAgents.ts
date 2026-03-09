@@ -10,8 +10,7 @@ import {
 } from '@/types/agent';
 import { format, parseISO, isToday, isTomorrow, addDays, startOfDay } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
-
-const API_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+import { supabase } from '@/integrations/supabase/client';
 
 export function useAgents(events: CalendarEvent[]) {
   const [agents, setAgents] = useState<Agent[]>(() => 
