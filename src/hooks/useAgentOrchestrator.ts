@@ -34,14 +34,7 @@ export interface AgentCollaboration {
 }
 
 export function useAgentOrchestrator(events: CalendarEvent[]) {
-  const [agents, setAgents] = useState<Agent[]>(() => 
-    AGENT_DEFINITIONS.map((def, i) => ({
-      ...def,
-      id: `agent-${i}`,
-      status: 'idle',
-      completedTasks: 0,
-    }))
-  );
+  // Removed duplicate agents state — use useAgents for agent state
   
   const [workQueue, setWorkQueue] = useState<AgentWorkItem[]>([]);
   const [isOrchestrating, setIsOrchestrating] = useState(false);
