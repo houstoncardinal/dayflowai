@@ -59,6 +59,8 @@ export function CommandHub({
   pendingSuggestions = 0,
 }: CommandHubProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [lockedFeature, setLockedFeature] = useState<Feature | null>(null);
+  const { canAccess } = useSubscription();
 
   const hour = new Date().getHours();
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
