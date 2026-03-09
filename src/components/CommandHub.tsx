@@ -128,6 +128,8 @@ export function CommandHub({
         description: `Starts at ${nextEvent.start_time}`,
         color: 'from-event-teal to-emerald-600',
         onClick: () => onQuickAction(`prep-event-${nextEvent.id}`),
+        proOnly: true,
+        feature: 'ai-agents',
       });
     }
 
