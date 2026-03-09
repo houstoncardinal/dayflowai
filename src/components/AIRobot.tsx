@@ -4,6 +4,7 @@ import { CalendarEvent } from '@/types/calendar';
 import { useAgents } from '@/hooks/useAgents';
 import { useAgentOrchestrator } from '@/hooks/useAgentOrchestrator';
 import { supabase } from '@/integrations/supabase/client';
+import { useRateLimit } from '@/hooks/useRateLimit';
 import { cn } from '@/lib/utils';
 import { Search, X, Loader2, CheckCircle2, Sparkles, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -72,6 +73,7 @@ export function AIRobot({ events }: AIRobotProps) {
   const robotControls = useAnimation();
   const inputRef = useRef<HTMLInputElement>(null);
   const floatInterval = useRef<ReturnType<typeof setInterval>>();
+  const { checkLimit, isLimited, remainingCalls } = useRateLimit('ai-agent');
 
   const {
     analyzeSchedule,
@@ -120,6 +122,9 @@ export function AIRobot({ events }: AIRobotProps) {
   // Execute command — routes to differentiated AI actions per team
   const handleCommand = useCallback(async (input: string) => {
     if (!input.trim()) return;
+
+    // Rate limit check
+    if (!checkLimit()) return;
 
     const team = matchTeam(input);
     const taskId = `task-${Date.now()}`;
@@ -224,7 +229,7 @@ export function AIRobot({ events }: AIRobotProps) {
       );
       setRobotMood('idle');
     }
-  }, [matchTeam, analyzeSchedule, events]);
+  }, [matchTeam, analyzeSchedule, events, checkLimit]);
 
 
 

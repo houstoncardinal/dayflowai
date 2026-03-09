@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Mic, BarChart3, RefreshCw, Sparkles, Zap, Sun, Moon, Coffee,
   ChevronUp, Brain, Calendar, Mail, FileText, Clock, Target,
-  Workflow, Link2, Bot, Users, Key
+  Workflow, Link2, Bot, Users, Key, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types/calendar';
 import { format, isToday, parseISO } from 'date-fns';
+import { useSubscription, Feature } from '@/hooks/useSubscription';
+import { FeatureGateDialog } from '@/components/FeatureGate';
 
 interface CommandHubProps {
   events: CalendarEvent[];
@@ -36,6 +38,8 @@ interface QuickAction {
   onClick: () => void;
   badge?: string;
   pulse?: boolean;
+  proOnly?: boolean;
+  feature?: Feature;
 }
 
 export function CommandHub({
@@ -55,6 +59,8 @@ export function CommandHub({
   pendingSuggestions = 0,
 }: CommandHubProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [lockedFeature, setLockedFeature] = useState<Feature | null>(null);
+  const { canAccess } = useSubscription();
 
   const hour = new Date().getHours();
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
@@ -95,6 +101,8 @@ export function CommandHub({
         description: `Prep all ${todayEvents.length} events for today`,
         color: 'from-event-amber to-amber-600',
         onClick: () => onQuickAction('morning-prep'),
+        proOnly: true,
+        feature: 'ai-agents',
       });
     }
 
@@ -106,6 +114,8 @@ export function CommandHub({
         description: 'Summarize today & plan tomorrow',
         color: 'from-event-violet to-purple-700',
         onClick: () => onQuickAction('day-wrap'),
+        proOnly: true,
+        feature: 'ai-agents',
       });
     }
 
@@ -118,6 +128,8 @@ export function CommandHub({
         description: `Starts at ${nextEvent.start_time}`,
         color: 'from-event-teal to-emerald-600',
         onClick: () => onQuickAction(`prep-event-${nextEvent.id}`),
+        proOnly: true,
+        feature: 'ai-agents',
       });
     }
 
@@ -143,6 +155,8 @@ export function CommandHub({
       description: 'Run automated workflows',
       color: 'from-event-violet to-indigo-600',
       onClick: onOpenWorkflows,
+      proOnly: true,
+      feature: 'automation-workflows',
     });
 
     // Voice
@@ -154,6 +168,8 @@ export function CommandHub({
       color: isVoiceActive ? 'from-event-emerald to-green-600' : 'from-gray-500 to-gray-600',
       onClick: onOpenVoice,
       pulse: isVoiceActive,
+      proOnly: true,
+      feature: 'voice-commands',
     });
 
     // Scheduling Links
@@ -174,6 +190,8 @@ export function CommandHub({
       description: 'Shared calendars & members',
       color: 'from-event-violet to-purple-600',
       onClick: onOpenTeamWorkspace,
+      proOnly: true,
+      feature: 'team-workspace',
     });
 
     // Integrations
@@ -194,6 +212,8 @@ export function CommandHub({
       description: 'View productivity insights',
       color: 'from-event-teal to-cyan-600',
       onClick: onOpenAnalytics,
+      proOnly: true,
+      feature: 'analytics',
     });
 
     // API & Webhooks
@@ -204,6 +224,8 @@ export function CommandHub({
       description: 'Developer tools',
       color: 'from-gray-600 to-gray-800',
       onClick: onOpenAPIWebhooks,
+      proOnly: true,
+      feature: 'api-webhooks',
     });
 
     // Sync
@@ -219,8 +241,26 @@ export function CommandHub({
     return actions;
   }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onQuickAction]);
 
+  const handleActionClick = (action: QuickAction) => {
+    if (action.proOnly && action.feature && !canAccess(action.feature)) {
+      setLockedFeature(action.feature);
+    } else {
+      action.onClick();
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
+    <>
+      {lockedFeature && (
+        <FeatureGateDialog
+          feature={lockedFeature}
+          open={true}
+          onOpenChange={(open) => !open && setLockedFeature(null)}
+        />
+      )}
+      
+      <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
       <AnimatePresence>
         {isOpen && (
           <>
@@ -273,23 +313,26 @@ export function CommandHub({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      onClick={() => {
-                        action.onClick();
-                        setIsOpen(false);
-                      }}
+                      onClick={() => handleActionClick(action)}
                       className={cn(
                         "relative flex flex-col items-start gap-1.5 p-3 rounded-xl text-left transition-all",
                         "hover:scale-[1.02] active:scale-[0.98]",
                         "bg-muted/50 hover:bg-muted border border-transparent hover:border-border",
-                        action.id === 'new-event' && "col-span-2 bg-gradient-to-r from-event-amber/10 to-event-coral/10 border-event-amber/20"
+                        action.id === 'new-event' && "col-span-2 bg-gradient-to-r from-event-amber/10 to-event-coral/10 border-event-amber/20",
+                        action.proOnly && !canAccess(action.feature!) && "opacity-75"
                       )}
                     >
                       <div className="flex items-center gap-2 w-full">
                         <div className={cn(
-                          "h-8 w-8 rounded-lg bg-gradient-to-br flex items-center justify-center shrink-0",
+                          "h-8 w-8 rounded-lg bg-gradient-to-br flex items-center justify-center shrink-0 relative",
                           action.color
                         )}>
                           <action.icon className="h-4 w-4 text-white" />
+                          {action.proOnly && !canAccess(action.feature!) && (
+                            <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-event-amber flex items-center justify-center">
+                              <Lock className="h-2.5 w-2.5 text-white" />
+                            </div>
+                          )}
                         </div>
                         {action.badge && (
                           <span className={cn(
@@ -349,6 +392,7 @@ export function CommandHub({
         </motion.div>
       )}
     </div>
+    </>
   );
 }
 

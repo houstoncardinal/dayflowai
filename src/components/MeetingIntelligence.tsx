@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRateLimit } from '@/hooks/useRateLimit';
 import { CalendarEvent } from '@/types/calendar';
 import { Brain, FileText, ListChecks, Mail, Loader2, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export default function MeetingIntelligence({
   const [manualNotes, setManualNotes] = useState('');
   const [generating, setGenerating] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const { checkLimit } = useRateLimit('meeting-intel');
 
   const loadNotes = async () => {
     if (!event || !user || loaded) return;
@@ -55,6 +57,10 @@ export default function MeetingIntelligence({
 
   const generateAI = async (type: 'agenda' | 'summary' | 'action_items' | 'follow_up') => {
     if (!event || !user) return;
+    
+    // Rate limit check
+    if (!checkLimit()) return;
+    
     setGenerating(type);
 
     try {
