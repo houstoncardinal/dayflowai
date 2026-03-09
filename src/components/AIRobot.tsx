@@ -73,6 +73,7 @@ export function AIRobot({ events }: AIRobotProps) {
   const robotControls = useAnimation();
   const inputRef = useRef<HTMLInputElement>(null);
   const floatInterval = useRef<ReturnType<typeof setInterval>>();
+  const { checkLimit, isLimited, remainingCalls } = useRateLimit('ai-agent');
 
   const {
     analyzeSchedule,
