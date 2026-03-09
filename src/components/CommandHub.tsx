@@ -114,6 +114,8 @@ export function CommandHub({
         description: 'Summarize today & plan tomorrow',
         color: 'from-event-violet to-purple-700',
         onClick: () => onQuickAction('day-wrap'),
+        proOnly: true,
+        feature: 'ai-agents',
       });
     }
 
