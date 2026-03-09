@@ -81,7 +81,6 @@ export function useRateLimit(key: string) {
 
       toast.error(`Too many ${config.label ?? key}`, {
         description: `Limit: ${config.maxCalls} per minute. Please wait ${secs}s before trying again.`,
-        icon: <AlertCircle className="h-4 w-4 text-event-coral" />,
         duration: 5000,
         action: {
           label: 'Got it',
