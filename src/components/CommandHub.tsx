@@ -224,6 +224,8 @@ export function CommandHub({
       description: 'Developer tools',
       color: 'from-gray-600 to-gray-800',
       onClick: onOpenAPIWebhooks,
+      proOnly: true,
+      feature: 'api-webhooks',
     });
 
     // Sync
