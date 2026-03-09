@@ -64,7 +64,6 @@ export function useRateLimit(key: string) {
       const secs = Math.ceil((state.cooldownUntil - now) / 1000);
       toast.error(`Rate limit — cooling down`, {
         description: `Try again in ${secs}s. ${config.label ?? key} is temporarily limited.`,
-        icon: <Clock className="h-4 w-4 text-event-coral" />,
         duration: 4000,
       });
       return false;
