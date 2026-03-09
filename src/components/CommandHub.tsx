@@ -168,6 +168,8 @@ export function CommandHub({
       color: isVoiceActive ? 'from-event-emerald to-green-600' : 'from-gray-500 to-gray-600',
       onClick: onOpenVoice,
       pulse: isVoiceActive,
+      proOnly: true,
+      feature: 'voice-commands',
     });
 
     // Scheduling Links
