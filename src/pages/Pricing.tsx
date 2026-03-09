@@ -31,7 +31,7 @@ const plans = [
     period: '/month',
     description: 'For power users who want more',
     icon: Sparkles,
-    cta: 'Start Free Trial',
+    cta: 'Get Started',
     ctaVariant: 'default' as const,
     popular: true,
     features: [
