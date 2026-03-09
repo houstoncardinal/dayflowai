@@ -123,6 +123,9 @@ export function AIRobot({ events }: AIRobotProps) {
   const handleCommand = useCallback(async (input: string) => {
     if (!input.trim()) return;
 
+    // Rate limit check
+    if (!checkLimit()) return;
+
     const team = matchTeam(input);
     const taskId = `task-${Date.now()}`;
 
