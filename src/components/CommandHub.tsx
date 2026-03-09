@@ -38,6 +38,8 @@ interface QuickAction {
   onClick: () => void;
   badge?: string;
   pulse?: boolean;
+  proOnly?: boolean;
+  feature?: Feature;
 }
 
 export function CommandHub({
