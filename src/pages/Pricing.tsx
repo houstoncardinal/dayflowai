@@ -31,7 +31,7 @@ const plans = [
     period: '/month',
     description: 'For power users who want more',
     icon: Sparkles,
-    cta: 'Start Free Trial',
+    cta: 'Get Started',
     ctaVariant: 'default' as const,
     popular: true,
     features: [
@@ -101,7 +101,7 @@ const enterprisePlan = {
     'White-label & embed',
     'On-premise deployment option',
     'Custom SLA & support',
-    'Compliance certifications',
+    'Compliance readiness support',
     'Volume discounts',
   ],
 };
@@ -135,7 +135,7 @@ export default function Pricing() {
             Plans for every team size
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Start free, scale as you grow. All plans include a 14-day free trial.
+            Start free, scale as you grow. No credit card required.
           </p>
         </motion.div>
       </section>

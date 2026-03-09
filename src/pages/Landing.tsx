@@ -32,20 +32,20 @@ import { HeroCalendarPreview } from '@/components/landing/HeroCalendarPreview';
 
 const faqs = [
   {
-    question: 'How does the free trial work?',
-    answer: 'Start with our Free plan at no cost. When you\'re ready to unlock Pro features like voice commands and advanced AI, you can upgrade anytime. Your first 14 days of Pro are free.',
+    question: 'How does the Free plan work?',
+    answer: 'Sign up for free and start using Dayflow immediately. The Free plan includes unlimited events, all calendar views, and basic AI assistance. Upgrade to Pro anytime for advanced features.',
   },
   {
     question: 'Can I sync with Google Calendar or Outlook?',
-    answer: 'Yes! Pro users can seamlessly sync with Google Calendar, Outlook, and Apple Calendar. All your events stay in sync in real-time across all platforms.',
+    answer: 'Calendar sync via ICS import/export is available on Pro. We\'re working on real-time two-way sync with Google Calendar and Outlook — coming soon.',
   },
   {
     question: 'How does the AI assistant work?',
-    answer: 'Our AI analyzes your scheduling patterns to suggest optimal meeting times, automatically reschedule conflicts, and provide smart reminders. It learns from your preferences over time.',
+    answer: 'Our AI analyzes your scheduling patterns to suggest optimal meeting times, generate meeting agendas, draft follow-up emails, and provide smart reminders based on your calendar context.',
   },
   {
     question: 'Is my data secure?',
-    answer: 'Absolutely. We use bank-level encryption (AES-256) for all data at rest and in transit. Your calendar data is never sold or shared with third parties.',
+    answer: 'Yes. All data is encrypted in transit (TLS) and at rest. Your calendar data is stored securely and is never sold or shared with third parties. We use row-level security to ensure users can only access their own data.',
   },
   {
     question: 'Can I cancel my subscription anytime?',
@@ -82,19 +82,19 @@ const features = [
 
 const testimonials = [
   {
-    quote: "The cleanest calendar app I've ever used. It just works.",
-    author: 'Sarah Chen',
-    role: 'Product Lead at Stripe',
+    quote: "The cleanest calendar app I've tried. The AI meeting prep saves me hours every week.",
+    author: 'Early Adopter',
+    role: 'Product Manager',
   },
   {
-    quote: 'Voice commands changed how I schedule. Absolute game-changer.',
-    author: 'Marcus Johnson',
-    role: 'Founder, Velocity',
+    quote: 'Voice commands changed how I schedule. Love the agent teams concept.',
+    author: 'Beta User',
+    role: 'Startup Founder',
   },
   {
-    quote: 'Finally, a calendar that feels like it was designed in 2026.',
-    author: 'Elena Rodriguez',
-    role: 'Creative Director',
+    quote: 'Finally, a calendar that feels modern. The scheduling links are a game-changer.',
+    author: 'Beta User',
+    role: 'Freelance Designer',
   },
 ];
 
@@ -269,9 +269,9 @@ export default function Landing() {
                 <div className="text-sm">
                   <div className="flex items-center gap-1 text-foreground font-medium">
                     <Star className="h-3.5 w-3.5 fill-current" />
-                    4.9/5
+                    Early Access
                   </div>
-                  <span className="text-muted-foreground">from 2,000+ reviews</span>
+                  <span className="text-muted-foreground">Join the beta</span>
                 </div>
               </motion.div>
             </div>
@@ -429,7 +429,7 @@ export default function Landing() {
               <p className="text-sm text-background/60 mb-4">For power users</p>
               <Link to="/auth">
                 <Button className="w-full h-11 rounded-xl bg-background text-foreground hover:bg-background/90">
-                  Start Free Trial
+                  Get Started
                 </Button>
               </Link>
               <Link to="/pricing" className="block mt-2">

@@ -10,8 +10,7 @@ import {
 } from '@/types/agent';
 import { format, parseISO, isToday, isTomorrow, addDays, startOfDay } from 'date-fns';
 import { toast } from '@/hooks/use-toast';
-
-const API_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+import { supabase } from '@/integrations/supabase/client';
 
 export function useAgents(events: CalendarEvent[]) {
   const [agents, setAgents] = useState<Agent[]>(() => 
@@ -44,22 +43,17 @@ export function useAgents(events: CalendarEvent[]) {
 
     // Try AI-powered analysis
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
           messages: [],
           events: upcomingEvents.slice(0, 50),
           action: 'analyze',
-        }),
+        },
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.data) {
+      if (error) throw error;
+
+      if (result?.data) {
           const aiData = result.data;
           
           if (aiData.optimization_suggestions) {
@@ -92,7 +86,6 @@ export function useAgents(events: CalendarEvent[]) {
               actionable: true,
               suggestedAction: 'Block focus time',
             });
-          }
         }
       }
     } catch (error) {
@@ -295,13 +288,8 @@ export function useAgents(events: CalendarEvent[]) {
     ));
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
           messages: [],
           events: events.slice(0, 30),
           action: 'execute_task',
@@ -313,15 +301,10 @@ export function useAgents(events: CalendarEvent[]) {
             eventTitle: task.eventTitle,
             context: task.description,
           },
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Task execution failed');
-      }
-
-      const result = await response.json();
+      if (error) throw error;
       
       let formattedOutput = '';
       if (result.data) {
