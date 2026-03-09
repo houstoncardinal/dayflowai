@@ -225,10 +225,8 @@ export function AIRobot({ events }: AIRobotProps) {
       setRobotMood('idle');
     }
   }, [matchTeam, analyzeSchedule, events]);
-      );
-      setRobotMood('idle');
-    }
-  }, [matchTeam, analyzeSchedule]);
+
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && commandInput.trim()) {
