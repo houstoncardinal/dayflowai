@@ -35,6 +35,7 @@ export default function MeetingIntelligence({
   const [manualNotes, setManualNotes] = useState('');
   const [generating, setGenerating] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const { checkLimit } = useRateLimit('meeting-intel');
 
   const loadNotes = async () => {
     if (!event || !user || loaded) return;
