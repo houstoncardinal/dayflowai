@@ -101,7 +101,7 @@ const enterprisePlan = {
     'White-label & embed',
     'On-premise deployment option',
     'Custom SLA & support',
-    'Compliance certifications',
+    'Compliance readiness support',
     'Volume discounts',
   ],
 };
