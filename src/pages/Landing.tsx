@@ -32,20 +32,20 @@ import { HeroCalendarPreview } from '@/components/landing/HeroCalendarPreview';
 
 const faqs = [
   {
-    question: 'How does the free trial work?',
-    answer: 'Start with our Free plan at no cost. When you\'re ready to unlock Pro features like voice commands and advanced AI, you can upgrade anytime. Your first 14 days of Pro are free.',
+    question: 'How does the Free plan work?',
+    answer: 'Sign up for free and start using Dayflow immediately. The Free plan includes unlimited events, all calendar views, and basic AI assistance. Upgrade to Pro anytime for advanced features.',
   },
   {
     question: 'Can I sync with Google Calendar or Outlook?',
-    answer: 'Yes! Pro users can seamlessly sync with Google Calendar, Outlook, and Apple Calendar. All your events stay in sync in real-time across all platforms.',
+    answer: 'Calendar sync via ICS import/export is available on Pro. We\'re working on real-time two-way sync with Google Calendar and Outlook — coming soon.',
   },
   {
     question: 'How does the AI assistant work?',
-    answer: 'Our AI analyzes your scheduling patterns to suggest optimal meeting times, automatically reschedule conflicts, and provide smart reminders. It learns from your preferences over time.',
+    answer: 'Our AI analyzes your scheduling patterns to suggest optimal meeting times, generate meeting agendas, draft follow-up emails, and provide smart reminders based on your calendar context.',
   },
   {
     question: 'Is my data secure?',
-    answer: 'Absolutely. We use bank-level encryption (AES-256) for all data at rest and in transit. Your calendar data is never sold or shared with third parties.',
+    answer: 'Yes. All data is encrypted in transit (TLS) and at rest. Your calendar data is stored securely and is never sold or shared with third parties. We use row-level security to ensure users can only access their own data.',
   },
   {
     question: 'Can I cancel my subscription anytime?',
