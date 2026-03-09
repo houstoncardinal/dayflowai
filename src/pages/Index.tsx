@@ -553,6 +553,8 @@ const Index = () => {
               events={allEvents} 
               onCreateEvent={handleVoiceCreateEvent}
               onVoiceCommand={trackVoiceCommand}
+              isActive={isVoiceActive}
+              onToggle={() => setIsVoiceActive(prev => !prev)}
             />
           </Suspense>
         </ErrorBoundary>

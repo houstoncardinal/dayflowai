@@ -252,11 +252,13 @@ export function CommandHub({
 
   return (
     <>
-      <FeatureGateDialog
-        feature={lockedFeature!}
-        open={!!lockedFeature}
-        onOpenChange={(open) => !open && setLockedFeature(null)}
-      />
+      {lockedFeature && (
+        <FeatureGateDialog
+          feature={lockedFeature}
+          open={true}
+          onOpenChange={(open) => !open && setLockedFeature(null)}
+        />
+      )}
       
       <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
       <AnimatePresence>
