@@ -101,6 +101,8 @@ export function CommandHub({
         description: `Prep all ${todayEvents.length} events for today`,
         color: 'from-event-amber to-amber-600',
         onClick: () => onQuickAction('morning-prep'),
+        proOnly: true,
+        feature: 'ai-agents',
       });
     }
 
