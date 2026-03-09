@@ -4,6 +4,7 @@ import { CalendarEvent } from '@/types/calendar';
 import { useAgents } from '@/hooks/useAgents';
 import { useAgentOrchestrator } from '@/hooks/useAgentOrchestrator';
 import { supabase } from '@/integrations/supabase/client';
+import { useRateLimit } from '@/hooks/useRateLimit';
 import { cn } from '@/lib/utils';
 import { Search, X, Loader2, CheckCircle2, Sparkles, Send } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
