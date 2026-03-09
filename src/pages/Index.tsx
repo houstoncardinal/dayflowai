@@ -38,7 +38,7 @@ import {
 const AddEventModal = lazy(() => import('@/components/calendar/AddEventModal').then(m => ({ default: m.AddEventModal })));
 const EventModal = lazy(() => import('@/components/calendar/EventModal').then(m => ({ default: m.EventModal })));
 const OnboardingTour = lazy(() => import('@/components/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
-const AIRobot = lazy(() => import('@/components/AIRobot').then(m => ({ default: m.default })));
+// AIRobot removed - CommandHub is the single AI entry point for authenticated users
 const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ default: m.VoiceAgent })));
 const DailyBriefing = lazy(() => import('@/components/DailyBriefing').then(m => ({ default: m.DailyBriefing })));
 const AnalyticsDashboard = lazy(() => import('@/components/AnalyticsDashboard').then(m => ({ default: m.AnalyticsDashboard })));
