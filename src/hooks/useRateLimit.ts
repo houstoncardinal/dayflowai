@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
 import { toast } from 'sonner';
-import { AlertCircle, Clock } from 'lucide-react';
 
 interface RateLimitConfig {
   maxCalls: number;
