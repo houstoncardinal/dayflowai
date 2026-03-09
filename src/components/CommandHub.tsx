@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Mic, BarChart3, RefreshCw, Sparkles, Zap, Sun, Moon, Coffee,
   ChevronUp, Brain, Calendar, Mail, FileText, Clock, Target,
-  Workflow, Link2, Bot, Users, Key
+  Workflow, Link2, Bot, Users, Key, Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types/calendar';
 import { format, isToday, parseISO } from 'date-fns';
+import { useSubscription, Feature } from '@/hooks/useSubscription';
+import { FeatureGateDialog } from '@/components/FeatureGate';
 
 interface CommandHubProps {
   events: CalendarEvent[];
