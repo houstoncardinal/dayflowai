@@ -57,6 +57,10 @@ export default function MeetingIntelligence({
 
   const generateAI = async (type: 'agenda' | 'summary' | 'action_items' | 'follow_up') => {
     if (!event || !user) return;
+    
+    // Rate limit check
+    if (!checkLimit()) return;
+    
     setGenerating(type);
 
     try {

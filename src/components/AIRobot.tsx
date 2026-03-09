@@ -229,7 +229,7 @@ export function AIRobot({ events }: AIRobotProps) {
       );
       setRobotMood('idle');
     }
-  }, [matchTeam, analyzeSchedule, events]);
+  }, [matchTeam, analyzeSchedule, events, checkLimit]);
 
 
 

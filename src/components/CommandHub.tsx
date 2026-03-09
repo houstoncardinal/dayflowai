@@ -391,6 +391,7 @@ export function CommandHub({
         </motion.div>
       )}
     </div>
+    </>
   );
 }
 
