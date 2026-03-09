@@ -34,21 +34,14 @@ export interface AgentCollaboration {
 }
 
 export function useAgentOrchestrator(events: CalendarEvent[]) {
-  // Removed duplicate agents state — use useAgents for agent state
-  
   const [workQueue, setWorkQueue] = useState<AgentWorkItem[]>([]);
   const [isOrchestrating, setIsOrchestrating] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<OrchestrationPlan | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const executeTask = useCallback(async (task: AutomationTask): Promise<any> => {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify({
+    const { data, error } = await supabase.functions.invoke('ai-assistant', {
+      body: {
         messages: [],
         events: events.slice(0, 30),
         action: 'execute_task',
@@ -60,40 +53,27 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
           eventTitle: task.eventTitle,
           context: task.description,
         },
-      }),
+      },
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Task execution failed');
-    }
-
-    return response.json();
+    if (error) throw new Error(error.message || 'Task execution failed');
+    return data;
   }, [events]);
 
   const analyzeSchedule = useCallback(async () => {
     setIsOrchestrating(true);
     
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
           messages: [],
           events: events.slice(0, 50),
           action: 'analyze',
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Analysis failed');
-      }
-
-      const result = await response.json();
-      return result.data;
+      if (error) throw error;
+      return data?.data;
     } catch (error) {
       console.error('Schedule analysis error:', error);
       toast({
@@ -111,27 +91,18 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
     setIsOrchestrating(true);
     
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
           messages: [{ role: 'user', content: taskDescription }],
           events: events.slice(0, 30),
           action: 'orchestrate',
           agentTeam: AGENT_DEFINITIONS.map(d => d.type),
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Orchestration planning failed');
-      }
-
-      const result = await response.json();
+      if (error) throw error;
       
-      if (result.data?.task_breakdown) {
+      if (result?.data?.task_breakdown) {
         const workItems: AgentWorkItem[] = result.data.task_breakdown.map((item: any, index: number) => ({
           id: `work-${Date.now()}-${index}`,
           agentType: item.agent_type,
@@ -177,15 +148,9 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
   }, [events]);
 
   const runWorkItem = useCallback(async (workItem: AgentWorkItem): Promise<AgentWorkItem> => {
-    setAgents(prev => prev.map(a => 
-      a.type === workItem.agentType 
-        ? { ...a, status: 'working', currentTask: workItem.task }
-        : a
-    ));
-
     setWorkQueue(prev => prev.map(w => 
       w.id === workItem.id 
-        ? { ...w, status: 'running', startedAt: new Date() }
+        ? { ...w, status: 'running' as const, startedAt: new Date() }
         : w
     ));
 
@@ -195,18 +160,12 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
       const completedItem: AgentWorkItem = {
         ...workItem,
         status: 'completed',
-        result: result.data,
+        result: result?.data,
         completedAt: new Date(),
       };
 
       setWorkQueue(prev => prev.map(w => 
         w.id === workItem.id ? completedItem : w
-      ));
-
-      setAgents(prev => prev.map(a => 
-        a.type === workItem.agentType 
-          ? { ...a, status: 'completed', currentTask: undefined, completedTasks: a.completedTasks + 1 }
-          : a
       ));
 
       return completedItem;
@@ -220,12 +179,6 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
 
       setWorkQueue(prev => prev.map(w => 
         w.id === workItem.id ? failedItem : w
-      ));
-
-      setAgents(prev => prev.map(a => 
-        a.type === workItem.agentType 
-          ? { ...a, status: 'idle', currentTask: undefined }
-          : a
       ));
 
       return failedItem;
@@ -246,7 +199,6 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
       await new Promise(r => setTimeout(r, 800));
     }
 
-    setAgents(prev => prev.map(a => ({ ...a, status: 'idle', currentTask: undefined })));
     setIsOrchestrating(false);
 
     toast({
@@ -258,7 +210,6 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
   const cancelOrchestration = useCallback(() => {
     abortControllerRef.current?.abort();
     setIsOrchestrating(false);
-    setAgents(prev => prev.map(a => ({ ...a, status: 'idle', currentTask: undefined })));
   }, []);
 
   const getCollaborationFor = useCallback((taskType: AgentType): AgentCollaboration => {
@@ -298,7 +249,6 @@ export function useAgentOrchestrator(events: CalendarEvent[]) {
   }, []);
 
   return {
-    agents,
     workQueue,
     currentPlan,
     isOrchestrating,
