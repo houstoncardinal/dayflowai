@@ -82,19 +82,19 @@ const features = [
 
 const testimonials = [
   {
-    quote: "The cleanest calendar app I've ever used. It just works.",
-    author: 'Sarah Chen',
-    role: 'Product Lead at Stripe',
+    quote: "The cleanest calendar app I've tried. The AI meeting prep saves me hours every week.",
+    author: 'Early Adopter',
+    role: 'Product Manager',
   },
   {
-    quote: 'Voice commands changed how I schedule. Absolute game-changer.',
-    author: 'Marcus Johnson',
-    role: 'Founder, Velocity',
+    quote: 'Voice commands changed how I schedule. Love the agent teams concept.',
+    author: 'Beta User',
+    role: 'Startup Founder',
   },
   {
-    quote: 'Finally, a calendar that feels like it was designed in 2026.',
-    author: 'Elena Rodriguez',
-    role: 'Creative Director',
+    quote: 'Finally, a calendar that feels modern. The scheduling links are a game-changer.',
+    author: 'Beta User',
+    role: 'Freelance Designer',
   },
 ];
 
