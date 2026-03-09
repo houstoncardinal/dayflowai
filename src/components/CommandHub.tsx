@@ -311,23 +311,27 @@ export function CommandHub({
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.03 }}
-                      onClick={() => {
-                        action.onClick();
-                        setIsOpen(false);
-                      }}
+                      onClick={() => handleActionClick(action)}
                       className={cn(
                         "relative flex flex-col items-start gap-1.5 p-3 rounded-xl text-left transition-all",
                         "hover:scale-[1.02] active:scale-[0.98]",
                         "bg-muted/50 hover:bg-muted border border-transparent hover:border-border",
-                        action.id === 'new-event' && "col-span-2 bg-gradient-to-r from-event-amber/10 to-event-coral/10 border-event-amber/20"
+                        action.id === 'new-event' && "col-span-2 bg-gradient-to-r from-event-amber/10 to-event-coral/10 border-event-amber/20",
+                        action.proOnly && !canAccess(action.feature!) && "opacity-75"
                       )}
                     >
                       <div className="flex items-center gap-2 w-full">
                         <div className={cn(
-                          "h-8 w-8 rounded-lg bg-gradient-to-br flex items-center justify-center shrink-0",
+                          "h-8 w-8 rounded-lg bg-gradient-to-br flex items-center justify-center shrink-0 relative",
                           action.color
                         )}>
                           <action.icon className="h-4 w-4 text-white" />
+                          {action.proOnly && !canAccess(action.feature!) && (
+                            <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-event-amber flex items-center justify-center">
+                              <Lock className="h-2.5 w-2.5 text-white" />
+                            </div>
+                          )}
+                        </div>
                         </div>
                         {action.badge && (
                           <span className={cn(
