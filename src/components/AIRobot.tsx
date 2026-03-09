@@ -117,7 +117,7 @@ export function AIRobot({ events }: AIRobotProps) {
     ) || AGENT_TEAMS[0]; // default to meeting prep
   }, []);
 
-  // Execute command
+  // Execute command — routes to differentiated AI actions per team
   const handleCommand = useCallback(async (input: string) => {
     if (!input.trim()) return;
 
@@ -139,35 +139,76 @@ export function AIRobot({ events }: AIRobotProps) {
     setCommandInput('');
     setIsCommandOpen(false);
 
-    // Simulate dispatching agents
-    await new Promise(r => setTimeout(r, 600));
+    // Brief dispatch animation
+    await new Promise(r => setTimeout(r, 400));
     setActiveTasks(prev =>
-      prev.map(t => t.id === taskId ? { ...t, status: 'working' as const, progress: 15 } : t)
+      prev.map(t => t.id === taskId ? { ...t, status: 'working' as const, progress: 20 } : t)
     );
 
-    // Simulate work phases with each agent
-    for (let i = 0; i < team.agents.length; i++) {
-      await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
-      setActiveTasks(prev =>
-        prev.map(t => t.id === taskId ? {
-          ...t,
-          activeAgent: team.agents[i],
-          progress: Math.min(90, 15 + ((i + 1) / team.agents.length) * 75),
-        } : t)
-      );
-    }
-
-    // Call actual AI
+    // Route to differentiated AI actions based on team
     try {
-      const analysis = await analyzeSchedule();
+      const teamActionMap: Record<string, { action: string; taskType: string }> = {
+        'meeting-prep': { action: 'execute_task', taskType: 'preparation' },
+        'follow-up': { action: 'execute_task', taskType: 'follow-up' },
+        'schedule-opt': { action: 'analyze', taskType: 'scheduling' },
+        'content': { action: 'execute_task', taskType: 'documentation' },
+      };
+
+      const teamAction = teamActionMap[team.id] || teamActionMap['schedule-opt'];
+      
+      // Update progress as agent works
+      setActiveTasks(prev =>
+        prev.map(t => t.id === taskId ? { ...t, activeAgent: team.agents[1] || team.agents[0], progress: 50 } : t)
+      );
+
+      let resultText = '';
+
+      if (teamAction.action === 'analyze') {
+        const analysis = await analyzeSchedule();
+        resultText = analysis
+          ? `**Schedule Analysis Complete**\n\nWorkload: ${analysis.workloadScore || 'N/A'}/100\n\n${analysis.insights?.map((i: any) => `• ${i.description}`).join('\n') || 'Your schedule looks optimized!'}`
+          : 'Schedule analyzed successfully — no issues found.';
+      } else {
+        // Execute a specific task type via the AI edge function
+        const { data, error } = await supabase.functions.invoke('ai-assistant', {
+          body: {
+            messages: [{ role: 'user', content: input }],
+            events: events.slice(0, 30),
+            action: 'execute_task',
+            task: {
+              id: taskId,
+              type: teamAction.taskType,
+              title: input,
+              context: `User command: "${input}". Team: ${team.name}. Agents: ${team.agents.join(', ')}.`,
+            },
+          },
+        });
+
+        if (error) throw error;
+
+        // Format the result
+        if (data?.data) {
+          const toolData = data.data;
+          const sections = [];
+          if (toolData.title) sections.push(`**${toolData.title}**`);
+          if (toolData.executive_summary) sections.push(toolData.executive_summary);
+          if (toolData.tldr) sections.push(toolData.tldr);
+          if (toolData.objectives?.length) sections.push(`\n**Objectives:**\n${toolData.objectives.map((o: string) => `• ${o}`).join('\n')}`);
+          if (toolData.action_items?.length) sections.push(`\n**Action Items:**\n${toolData.action_items.map((a: any) => `• ${a.task}${a.owner ? ` (${a.owner})` : ''}`).join('\n')}`);
+          if (toolData.agenda_items?.length) sections.push(`\n**Agenda:**\n${toolData.agenda_items.map((a: any, i: number) => `${i+1}. ${a.topic} (${a.duration_minutes}min)`).join('\n')}`);
+          resultText = sections.join('\n\n') || data.content || 'Task completed successfully.';
+        } else {
+          resultText = data?.content || 'Task completed successfully.';
+        }
+      }
+
       setActiveTasks(prev =>
         prev.map(t => t.id === taskId ? {
           ...t,
           status: 'completed' as const,
           progress: 100,
-          result: analysis
-            ? `Found ${analysis.automatableTasks?.length || 0} automatable tasks. Workload score: ${analysis.workloadScore || 'N/A'}/100. ${analysis.insights?.[0]?.description || 'Schedule analyzed successfully.'}`
-            : 'Analysis complete. Your schedule looks optimized!',
+          activeAgent: team.agents[team.agents.length - 1],
+          result: resultText,
         } : t)
       );
       setRobotMood('happy');
@@ -178,8 +219,12 @@ export function AIRobot({ events }: AIRobotProps) {
           ...t,
           status: 'failed' as const,
           progress: 100,
-          result: 'Something went wrong. I\'ll try again later.',
+          result: 'Something went wrong. Please try again.',
         } : t)
+      );
+      setRobotMood('idle');
+    }
+  }, [matchTeam, analyzeSchedule, events]);
       );
       setRobotMood('idle');
     }
