@@ -82,10 +82,11 @@ export function AIRobot({ events }: AIRobotProps) {
     executeOrchestration,
   } = useAgentOrchestrator(events);
 
-  // Floating animation - subtle hovering
+  // Floating animation - subtle hovering (uses framer-motion controls, auto-cleans up)
   useEffect(() => {
+    let cancelled = false;
     const float = async () => {
-      while (true) {
+      while (!cancelled) {
         await robotControls.start({
           y: [0, -8, 0, -4, 0],
           rotate: [0, -2, 0, 2, 0],
@@ -94,7 +95,10 @@ export function AIRobot({ events }: AIRobotProps) {
       }
     };
     if (robotMood === 'idle') float();
-    return () => robotControls.stop();
+    return () => {
+      cancelled = true;
+      robotControls.stop();
+    };
   }, [robotMood, robotControls]);
 
   // Focus input when command palette opens
