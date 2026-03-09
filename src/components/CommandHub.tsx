@@ -155,6 +155,8 @@ export function CommandHub({
       description: 'Run automated workflows',
       color: 'from-event-violet to-indigo-600',
       onClick: onOpenWorkflows,
+      proOnly: true,
+      feature: 'automation-workflows',
     });
 
     // Voice
