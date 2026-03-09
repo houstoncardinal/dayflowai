@@ -212,6 +212,8 @@ export function CommandHub({
       description: 'View productivity insights',
       color: 'from-event-teal to-cyan-600',
       onClick: onOpenAnalytics,
+      proOnly: true,
+      feature: 'analytics',
     });
 
     // API & Webhooks
