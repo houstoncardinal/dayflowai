@@ -43,22 +43,17 @@ export function useAgents(events: CalendarEvent[]) {
 
     // Try AI-powered analysis
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
           messages: [],
           events: upcomingEvents.slice(0, 50),
           action: 'analyze',
-        }),
+        },
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.data) {
+      if (error) throw error;
+
+      if (result?.data) {
           const aiData = result.data;
           
           if (aiData.optimization_suggestions) {
