@@ -332,7 +332,6 @@ export function CommandHub({
                             </div>
                           )}
                         </div>
-                        </div>
                         {action.badge && (
                           <span className={cn(
                             "ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-event-coral text-white",
