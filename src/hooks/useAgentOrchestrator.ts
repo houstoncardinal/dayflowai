@@ -1,14 +1,12 @@
 import { useState, useCallback, useRef } from 'react';
 import { CalendarEvent } from '@/types/calendar';
 import { 
-  Agent, 
   AutomationTask, 
   AgentType,
   AGENT_DEFINITIONS 
 } from '@/types/agent';
 import { toast } from '@/hooks/use-toast';
-
-const API_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-assistant`;
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AgentWorkItem {
   id: string;
