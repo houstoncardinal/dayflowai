@@ -429,7 +429,7 @@ export default function Landing() {
               <p className="text-sm text-background/60 mb-4">For power users</p>
               <Link to="/auth">
                 <Button className="w-full h-11 rounded-xl bg-background text-foreground hover:bg-background/90">
-                  Start Free Trial
+                  Get Started
                 </Button>
               </Link>
               <Link to="/pricing" className="block mt-2">

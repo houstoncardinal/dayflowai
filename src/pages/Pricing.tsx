@@ -135,7 +135,7 @@ export default function Pricing() {
             Plans for every team size
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Start free, scale as you grow. All plans include a 14-day free trial.
+            Start free, scale as you grow. No credit card required.
           </p>
         </motion.div>
       </section>

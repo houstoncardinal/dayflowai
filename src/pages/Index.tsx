@@ -545,12 +545,7 @@ const Index = () => {
           />
         </Suspense>
 
-        {/* AI Robot - Lazy loaded with error boundary */}
-        <ErrorBoundary>
-          <Suspense fallback={<LoadingFallback />}>
-            <AIRobot events={allEvents} />
-          </Suspense>
-        </ErrorBoundary>
+        {/* AIRobot removed - CommandHub is the unified AI entry point */}
 
         <ErrorBoundary>
           <Suspense fallback={<LoadingFallback />}>
