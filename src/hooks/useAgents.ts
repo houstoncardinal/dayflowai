@@ -288,13 +288,8 @@ export function useAgents(events: CalendarEvent[]) {
     ));
 
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data: result, error } = await supabase.functions.invoke('ai-assistant', {
+        body: {
           messages: [],
           events: events.slice(0, 30),
           action: 'execute_task',
@@ -306,15 +301,10 @@ export function useAgents(events: CalendarEvent[]) {
             eventTitle: task.eventTitle,
             context: task.description,
           },
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Task execution failed');
-      }
-
-      const result = await response.json();
+      if (error) throw error;
       
       let formattedOutput = '';
       if (result.data) {
