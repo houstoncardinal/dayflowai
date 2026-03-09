@@ -241,6 +241,15 @@ export function CommandHub({
     return actions;
   }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onQuickAction]);
 
+  const handleActionClick = (action: QuickAction) => {
+    if (action.proOnly && action.feature && !canAccess(action.feature)) {
+      setLockedFeature(action.feature);
+    } else {
+      action.onClick();
+      setIsOpen(false);
+    }
+  };
+
   return (
     <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50">
       <AnimatePresence>
