@@ -86,7 +86,6 @@ export function useAgents(events: CalendarEvent[]) {
               actionable: true,
               suggestedAction: 'Block focus time',
             });
-          }
         }
       }
     } catch (error) {
