@@ -269,9 +269,9 @@ export default function Landing() {
                 <div className="text-sm">
                   <div className="flex items-center gap-1 text-foreground font-medium">
                     <Star className="h-3.5 w-3.5 fill-current" />
-                    4.9/5
+                    Early Access
                   </div>
-                  <span className="text-muted-foreground">from 2,000+ reviews</span>
+                  <span className="text-muted-foreground">Join the beta</span>
                 </div>
               </motion.div>
             </div>
