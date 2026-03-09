@@ -190,6 +190,8 @@ export function CommandHub({
       description: 'Shared calendars & members',
       color: 'from-event-violet to-purple-600',
       onClick: onOpenTeamWorkspace,
+      proOnly: true,
+      feature: 'team-workspace',
     });
 
     // Integrations
