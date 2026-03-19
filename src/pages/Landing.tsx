@@ -338,7 +338,7 @@ export default function Landing() {
           >
             <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Reviews</span>
             <h2 className="font-display text-3xl md:text-4xl mt-4">
-              Loved by thousands
+              Loved by early adopters
             </h2>
           </motion.div>
 
