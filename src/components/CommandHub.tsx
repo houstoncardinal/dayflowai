@@ -55,6 +55,7 @@ export function CommandHub({
   onOpenSchedulingLinks,
   onOpenTeamWorkspace,
   onOpenAPIWebhooks,
+  onOpenMeetingIntel,
   onQuickAction,
   isVoiceActive = false,
   pendingSuggestions = 0,
