@@ -52,7 +52,7 @@ const plans = [
     period: '/seat/month',
     description: 'For small teams collaborating',
     icon: Users,
-    cta: 'Start Team Trial',
+    cta: 'Get Started',
     ctaVariant: 'outline' as const,
     features: [
       { name: 'Everything in Pro', included: true },

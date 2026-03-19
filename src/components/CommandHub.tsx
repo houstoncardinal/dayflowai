@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Mic, BarChart3, RefreshCw, Sparkles, Zap, Sun, Moon, Coffee,
   ChevronUp, Brain, Calendar, Mail, FileText, Clock, Target,
-  Workflow, Link2, Bot, Users, Key, Lock
+  Workflow, Link2, Bot, Users, Key, Lock, NotebookPen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,6 +24,7 @@ interface CommandHubProps {
   onOpenSchedulingLinks: () => void;
   onOpenTeamWorkspace: () => void;
   onOpenAPIWebhooks: () => void;
+  onOpenMeetingIntel: () => void;
   onQuickAction: (action: string) => void;
   isVoiceActive?: boolean;
   pendingSuggestions?: number;
@@ -54,6 +55,7 @@ export function CommandHub({
   onOpenSchedulingLinks,
   onOpenTeamWorkspace,
   onOpenAPIWebhooks,
+  onOpenMeetingIntel,
   onQuickAction,
   isVoiceActive = false,
   pendingSuggestions = 0,
@@ -194,6 +196,18 @@ export function CommandHub({
       feature: 'team-workspace',
     });
 
+    // Meeting Intelligence
+    actions.push({
+      id: 'meeting-intel',
+      icon: NotebookPen,
+      label: 'Meeting Notes',
+      description: 'AI agendas, summaries & action items',
+      color: 'from-event-coral to-rose-600',
+      onClick: onOpenMeetingIntel,
+      proOnly: true,
+      feature: 'meeting-intelligence',
+    });
+
     // Integrations
     actions.push({
       id: 'integrations',
@@ -239,7 +253,7 @@ export function CommandHub({
     });
 
     return actions;
-  }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onQuickAction]);
+  }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onOpenMeetingIntel, onQuickAction]);
 
   const handleActionClick = (action: QuickAction) => {
     if (action.proOnly && action.feature && !canAccess(action.feature)) {

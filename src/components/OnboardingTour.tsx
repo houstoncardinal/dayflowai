@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, ArrowLeft, Calendar, Layers, GripVertical, Sparkles, CheckCircle } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Calendar, Layers, GripVertical, Sparkles, CheckCircle, Zap, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface TourStep {
@@ -39,6 +39,20 @@ const tourSteps: TourStep[] = [
     icon: Calendar,
     color: 'from-event-amber to-event-coral',
     position: 'top-right',
+  },
+  {
+    title: 'AI Command Hub ⚡',
+    description: 'Tap the lightning bolt in the bottom-right corner to access voice commands, AI meeting notes, smart suggestions, and more.',
+    icon: Zap,
+    color: 'from-event-amber to-event-coral',
+    position: 'bottom-right',
+  },
+  {
+    title: 'Voice & AI Agents 🤖',
+    description: 'Use voice commands to create events hands-free. Our AI agents can prep meetings, draft follow-ups, and optimize your schedule.',
+    icon: Mic,
+    color: 'from-event-violet to-primary',
+    position: 'bottom-right',
   },
   {
     title: "You're All Set! ✨",

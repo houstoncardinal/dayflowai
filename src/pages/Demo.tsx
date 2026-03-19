@@ -9,7 +9,7 @@ import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import AIRobot from '@/components/AIRobot';
+import CommandHub from '@/components/CommandHub';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCalendar } from '@/hooks/useCalendar';
@@ -277,8 +277,22 @@ export default function Demo() {
         selectedDate={selectedDate}
       />
 
-      {/* AI Robot */}
-      <AIRobot events={demoEvents} />
+      {/* Command Hub - consistent with authenticated app */}
+      <CommandHub
+        events={demoEvents}
+        onAddEvent={() => setIsAddEventOpen(true)}
+        onOpenVoice={() => {}}
+        onOpenAnalytics={() => {}}
+        onOpenCalendarSync={() => {}}
+        onOpenSuggestions={() => {}}
+        onOpenWorkflows={() => {}}
+        onOpenIntegrations={() => {}}
+        onOpenSchedulingLinks={() => {}}
+        onOpenTeamWorkspace={() => {}}
+        onOpenAPIWebhooks={() => {}}
+        onOpenMeetingIntel={() => {}}
+        onQuickAction={() => {}}
+      />
     </div>
   );
 }
