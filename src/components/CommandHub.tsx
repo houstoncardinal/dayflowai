@@ -196,6 +196,18 @@ export function CommandHub({
       feature: 'team-workspace',
     });
 
+    // Meeting Intelligence
+    actions.push({
+      id: 'meeting-intel',
+      icon: NotebookPen,
+      label: 'Meeting Notes',
+      description: 'AI agendas, summaries & action items',
+      color: 'from-event-coral to-rose-600',
+      onClick: onOpenMeetingIntel,
+      proOnly: true,
+      feature: 'meeting-intelligence',
+    });
+
     // Integrations
     actions.push({
       id: 'integrations',
