@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, Mic, BarChart3, RefreshCw, Sparkles, Zap, Sun, Moon, Coffee,
   ChevronUp, Brain, Calendar, Mail, FileText, Clock, Target,
-  Workflow, Link2, Bot, Users, Key, Lock
+  Workflow, Link2, Bot, Users, Key, Lock, NotebookPen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
