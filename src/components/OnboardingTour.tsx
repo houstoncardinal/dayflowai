@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, ArrowLeft, Calendar, Layers, GripVertical, Sparkles, CheckCircle } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Calendar, Layers, GripVertical, Sparkles, CheckCircle, Zap, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface TourStep {
