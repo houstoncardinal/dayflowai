@@ -9,7 +9,7 @@ import { Sidebar } from '@/components/calendar/Sidebar';
 import { AddEventModal } from '@/components/calendar/AddEventModal';
 import { OnboardingTour } from '@/components/OnboardingTour';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import AIRobot from '@/components/AIRobot';
+import CommandHub from '@/components/CommandHub';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCalendar } from '@/hooks/useCalendar';
