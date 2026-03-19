@@ -200,7 +200,7 @@ export default function BookingPage() {
                 {format(selectedDate!, 'EEEE, MMMM d, yyyy')} at {selectedTime}
               </p>
               <p className="text-sm text-muted-foreground">
-                A confirmation has been sent to {guestEmail}
+                You're all set, {guestName}! The host will receive your booking details.
               </p>
             </motion.div>
           ) : (

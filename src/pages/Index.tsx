@@ -510,6 +510,7 @@ const Index = () => {
             onOpenSchedulingLinks={() => setShowSchedulingLinks(true)}
             onOpenTeamWorkspace={() => setShowTeamWorkspace(true)}
             onOpenAPIWebhooks={() => setShowAPIWebhooks(true)}
+            onOpenMeetingIntel={() => setShowMeetingIntel(true)}
             onQuickAction={(action) => {
               if (action === 'morning-prep' || action === 'day-wrap') {
                 setShowWorkflows(true);

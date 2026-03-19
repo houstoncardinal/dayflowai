@@ -253,7 +253,7 @@ export function CommandHub({
     });
 
     return actions;
-  }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onQuickAction]);
+  }, [timeOfDay, todayEvents, nextEvent, pendingSuggestions, isVoiceActive, onAddEvent, onOpenVoice, onOpenAnalytics, onOpenCalendarSync, onOpenSuggestions, onOpenWorkflows, onOpenIntegrations, onOpenSchedulingLinks, onOpenTeamWorkspace, onOpenAPIWebhooks, onOpenMeetingIntel, onQuickAction]);
 
   const handleActionClick = (action: QuickAction) => {
     if (action.proOnly && action.feature && !canAccess(action.feature)) {

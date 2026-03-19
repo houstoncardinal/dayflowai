@@ -584,9 +584,9 @@ export default function Landing() {
             <span className="font-semibold">Dayflow</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-            <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+            <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+            <Link to="/demo" className="hover:text-foreground transition-colors">Demo</Link>
+            <a href="mailto:support@dayflowai.com" className="hover:text-foreground transition-colors">Contact</a>
           </div>
           <p className="text-sm text-muted-foreground">
             © 2026 Dayflow
