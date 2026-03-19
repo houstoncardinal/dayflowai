@@ -24,6 +24,7 @@ interface CommandHubProps {
   onOpenSchedulingLinks: () => void;
   onOpenTeamWorkspace: () => void;
   onOpenAPIWebhooks: () => void;
+  onOpenMeetingIntel: () => void;
   onQuickAction: (action: string) => void;
   isVoiceActive?: boolean;
   pendingSuggestions?: number;
