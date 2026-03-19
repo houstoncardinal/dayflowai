@@ -277,8 +277,22 @@ export default function Demo() {
         selectedDate={selectedDate}
       />
 
-      {/* AI Robot */}
-      <AIRobot events={demoEvents} />
+      {/* Command Hub - consistent with authenticated app */}
+      <CommandHub
+        events={demoEvents}
+        onAddEvent={() => setIsAddEventOpen(true)}
+        onOpenVoice={() => {}}
+        onOpenAnalytics={() => {}}
+        onOpenCalendarSync={() => {}}
+        onOpenSuggestions={() => {}}
+        onOpenWorkflows={() => {}}
+        onOpenIntegrations={() => {}}
+        onOpenSchedulingLinks={() => {}}
+        onOpenTeamWorkspace={() => {}}
+        onOpenAPIWebhooks={() => {}}
+        onOpenMeetingIntel={() => {}}
+        onQuickAction={() => {}}
+      />
     </div>
   );
 }
