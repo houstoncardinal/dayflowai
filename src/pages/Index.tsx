@@ -554,6 +554,8 @@ const Index = () => {
               events={allEvents} 
               onCreateEvent={handleVoiceCreateEvent}
               onVoiceCommand={trackVoiceCommand}
+              externalOpen={isVoiceActive}
+              onExternalClose={() => setIsVoiceActive(false)}
             />
           </Suspense>
         </ErrorBoundary>
