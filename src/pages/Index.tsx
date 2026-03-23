@@ -421,6 +421,19 @@ const Index = () => {
                   <Button 
                     variant="ghost" 
                     size="icon" 
+                    onClick={() => navigate('/settings')}
+                    className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Settings</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
                     onClick={() => signOut()}
                     className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
                   >
