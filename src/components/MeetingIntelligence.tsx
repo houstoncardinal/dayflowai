@@ -154,10 +154,66 @@ export default function MeetingIntelligence({
     toast.success('Notes saved');
   };
 
-  if (!event) return null;
+  const handleClose = () => {
+    onClose();
+    setLoaded(false);
+    setNotes(null);
+    setSelectedEvent(null);
+    setUserEvents([]);
+  };
+
+  // Event picker when no event is provided
+  if (!event) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => handleClose()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5" />
+              Meeting Intelligence
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-4">
+            Select an upcoming event to generate AI notes, agendas, and follow-ups.
+          </p>
+          {loadingEvents ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : userEvents.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No upcoming events this week</p>
+            </div>
+          ) : (
+            <ScrollArea className="max-h-[50vh]">
+              <div className="space-y-2">
+                {userEvents.map((ev) => (
+                  <button
+                    key={ev.id}
+                    onClick={() => { setSelectedEvent(ev); setLoaded(false); }}
+                    className="w-full text-left p-3 rounded-xl border border-border hover:bg-accent transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`h-3 w-3 rounded-full bg-event-${ev.color}`} />
+                      <span className="font-medium text-sm">{ev.title}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {format(parseISO(ev.event_date), 'EEE, MMM d')}
+                      {ev.start_time && ` at ${ev.start_time}`}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => { onClose(); setLoaded(false); setNotes(null); }}>
+    <Dialog open={isOpen} onOpenChange={() => handleClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
