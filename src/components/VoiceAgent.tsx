@@ -63,6 +63,8 @@ interface VoiceAgentProps {
   onTaskComplete?: (task: AutomationTask) => void;
   onCreateEvent?: (event: any) => Promise<void>;
   onVoiceCommand?: (command: string) => void;
+  externalOpen?: boolean;
+  onExternalClose?: () => void;
 }
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected';
