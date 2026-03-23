@@ -429,7 +429,7 @@ export function VoiceAgent({ events, onTaskComplete, onCreateEvent, onVoiceComma
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setIsOpen(false)}
+                  onClick={handleClose}
                   className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/20"
                 >
                   ✕
