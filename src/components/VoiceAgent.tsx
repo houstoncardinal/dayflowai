@@ -81,8 +81,20 @@ const EVENT_CREATION_PATTERNS = [
   /appointment/i,
 ];
 
-export function VoiceAgent({ events, onTaskComplete, onCreateEvent, onVoiceCommand }: VoiceAgentProps) {
+export function VoiceAgent({ events, onTaskComplete, onCreateEvent, onVoiceCommand, externalOpen, onExternalClose }: VoiceAgentProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  // Sync with external open state from CommandHub
+  useEffect(() => {
+    if (externalOpen && !isOpen) {
+      setIsOpen(true);
+    }
+  }, [externalOpen]);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    onExternalClose?.();
+  };
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isListening, setIsListening] = useState(false);
