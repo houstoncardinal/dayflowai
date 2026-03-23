@@ -563,7 +563,7 @@ export default function Landing() {
             your schedule?
           </h2>
           <p className="text-lg text-muted-foreground mb-10">
-            Join thousands of professionals who've upgraded their productivity.
+            Join early adopters who've upgraded their productivity.
           </p>
           <Link to="/auth">
             <Button size="lg" className="h-12 px-8 rounded-xl">
