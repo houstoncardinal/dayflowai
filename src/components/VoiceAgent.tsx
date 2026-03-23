@@ -392,29 +392,7 @@ export function VoiceAgent({ events, onTaskComplete, onCreateEvent, onVoiceComma
       {/* Hidden audio element for TTS playback */}
       <audio ref={audioRef} onEnded={() => setIsSpeaking(false)} />
       
-      {/* Floating Voice Button */}
-      <AnimatePresence>
-        {!isOpen && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-24 right-6 z-50 h-12 w-12 rounded-full bg-gradient-to-br from-event-coral via-event-rose to-event-violet shadow-2xl flex items-center justify-center group"
-          >
-            <Mic className="h-5 w-5 text-white" />
-            {status === 'connected' && (
-              <motion.div
-                animate={{ scale: [1, 1.3, 1] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="absolute inset-0 rounded-full bg-event-coral/30"
-              />
-            )}
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Floating Voice Button removed — voice is accessed via CommandHub */}
 
       {/* Voice Agent Panel */}
       <AnimatePresence>
