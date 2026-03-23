@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
