@@ -563,7 +563,7 @@ export default function Landing() {
             your schedule?
           </h2>
           <p className="text-lg text-muted-foreground mb-10">
-            Join thousands of professionals who've upgraded their productivity.
+            Join early adopters who've upgraded their productivity.
           </p>
           <Link to="/auth">
             <Button size="lg" className="h-12 px-8 rounded-xl">
@@ -586,6 +586,8 @@ export default function Landing() {
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link to="/demo" className="hover:text-foreground transition-colors">Demo</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <a href="mailto:support@dayflowai.com" className="hover:text-foreground transition-colors">Contact</a>
           </div>
           <p className="text-sm text-muted-foreground">

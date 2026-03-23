@@ -194,7 +194,7 @@ export default function Auth() {
             </h1>
             
             <p className="text-muted-foreground text-lg max-w-md leading-relaxed mb-12">
-              Join thousands who've transformed their productivity with intelligent scheduling and AI-powered insights.
+              Join a growing community of professionals who've transformed their productivity with intelligent scheduling and AI-powered insights.
             </p>
             
             {/* Testimonial */}

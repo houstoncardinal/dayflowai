@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRateLimit } from '@/hooks/useRateLimit';
 import { CalendarEvent } from '@/types/calendar';
-import { Brain, FileText, ListChecks, Mail, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { Brain, FileText, ListChecks, Mail, Loader2, Sparkles, RefreshCw, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { format, isToday, isTomorrow, parseISO, addDays, isBefore } from 'date-fns';
 
 interface MeetingNote {
   id: string;
@@ -22,7 +24,7 @@ interface MeetingNote {
 }
 
 export default function MeetingIntelligence({ 
-  event, 
+  event: externalEvent, 
   isOpen, 
   onClose 
 }: { 
@@ -35,7 +37,32 @@ export default function MeetingIntelligence({
   const [manualNotes, setManualNotes] = useState('');
   const [generating, setGenerating] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [userEvents, setUserEvents] = useState<CalendarEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
   const { checkLimit } = useRateLimit('meeting-intel');
+
+  const event = externalEvent || selectedEvent;
+
+  // Load user events when opened without an event
+  useEffect(() => {
+    if (isOpen && !externalEvent && user) {
+      setLoadingEvents(true);
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const nextWeek = format(addDays(new Date(), 7), 'yyyy-MM-dd');
+      supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('event_date', today)
+        .lte('event_date', nextWeek)
+        .order('event_date', { ascending: true })
+        .then(({ data }) => {
+          setUserEvents((data as CalendarEvent[]) || []);
+          setLoadingEvents(false);
+        });
+    }
+  }, [isOpen, externalEvent, user]);
 
   const loadNotes = async () => {
     if (!event || !user || loaded) return;
@@ -53,7 +80,7 @@ export default function MeetingIntelligence({
     setLoaded(true);
   };
 
-  if (isOpen && !loaded) loadNotes();
+  if (isOpen && event && !loaded) loadNotes();
 
   const generateAI = async (type: 'agenda' | 'summary' | 'action_items' | 'follow_up') => {
     if (!event || !user) return;
@@ -127,10 +154,66 @@ export default function MeetingIntelligence({
     toast.success('Notes saved');
   };
 
-  if (!event) return null;
+  const handleClose = () => {
+    onClose();
+    setLoaded(false);
+    setNotes(null);
+    setSelectedEvent(null);
+    setUserEvents([]);
+  };
+
+  // Event picker when no event is provided
+  if (!event) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => handleClose()}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="h-5 w-5" />
+              Meeting Intelligence
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-4">
+            Select an upcoming event to generate AI notes, agendas, and follow-ups.
+          </p>
+          {loadingEvents ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : userEvents.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">No upcoming events this week</p>
+            </div>
+          ) : (
+            <ScrollArea className="max-h-[50vh]">
+              <div className="space-y-2">
+                {userEvents.map((ev) => (
+                  <button
+                    key={ev.id}
+                    onClick={() => { setSelectedEvent(ev); setLoaded(false); }}
+                    className="w-full text-left p-3 rounded-xl border border-border hover:bg-accent transition-colors"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`h-3 w-3 rounded-full bg-event-${ev.color}`} />
+                      <span className="font-medium text-sm">{ev.title}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {format(parseISO(ev.event_date), 'EEE, MMM d')}
+                      {ev.start_time && ` at ${ev.start_time}`}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => { onClose(); setLoaded(false); setNotes(null); }}>
+    <Dialog open={isOpen} onOpenChange={() => handleClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">

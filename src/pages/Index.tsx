@@ -20,7 +20,7 @@ import { format } from 'date-fns';
 import { fireEventConfetti } from '@/lib/confetti';
 import { cn } from '@/lib/utils';
 import { CalendarEvent } from '@/types/calendar';
-import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles } from 'lucide-react';
+import { CalendarDays, LogOut, Menu, Bell, BellOff, Sparkles, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -421,6 +421,19 @@ const Index = () => {
                   <Button 
                     variant="ghost" 
                     size="icon" 
+                    onClick={() => navigate('/settings')}
+                    className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Settings</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
                     onClick={() => signOut()}
                     className="text-muted-foreground hover:text-foreground h-8 w-8 md:h-9 md:w-9"
                   >
@@ -554,6 +567,8 @@ const Index = () => {
               events={allEvents} 
               onCreateEvent={handleVoiceCreateEvent}
               onVoiceCommand={trackVoiceCommand}
+              externalOpen={isVoiceActive}
+              onExternalClose={() => setIsVoiceActive(false)}
             />
           </Suspense>
         </ErrorBoundary>
