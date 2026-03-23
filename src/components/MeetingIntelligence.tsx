@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRateLimit } from '@/hooks/useRateLimit';
 import { CalendarEvent } from '@/types/calendar';
-import { Brain, FileText, ListChecks, Mail, Loader2, Sparkles, RefreshCw } from 'lucide-react';
+import { Brain, FileText, ListChecks, Mail, Loader2, Sparkles, RefreshCw, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { format, isToday, isTomorrow, parseISO, addDays, isBefore } from 'date-fns';
 
 interface MeetingNote {
   id: string;
@@ -22,7 +24,7 @@ interface MeetingNote {
 }
 
 export default function MeetingIntelligence({ 
-  event, 
+  event: externalEvent, 
   isOpen, 
   onClose 
 }: { 
@@ -35,7 +37,32 @@ export default function MeetingIntelligence({
   const [manualNotes, setManualNotes] = useState('');
   const [generating, setGenerating] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [userEvents, setUserEvents] = useState<CalendarEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
   const { checkLimit } = useRateLimit('meeting-intel');
+
+  const event = externalEvent || selectedEvent;
+
+  // Load user events when opened without an event
+  useEffect(() => {
+    if (isOpen && !externalEvent && user) {
+      setLoadingEvents(true);
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const nextWeek = format(addDays(new Date(), 7), 'yyyy-MM-dd');
+      supabase
+        .from('events')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('event_date', today)
+        .lte('event_date', nextWeek)
+        .order('event_date', { ascending: true })
+        .then(({ data }) => {
+          setUserEvents((data as CalendarEvent[]) || []);
+          setLoadingEvents(false);
+        });
+    }
+  }, [isOpen, externalEvent, user]);
 
   const loadNotes = async () => {
     if (!event || !user || loaded) return;
@@ -53,7 +80,7 @@ export default function MeetingIntelligence({
     setLoaded(true);
   };
 
-  if (isOpen && !loaded) loadNotes();
+  if (isOpen && event && !loaded) loadNotes();
 
   const generateAI = async (type: 'agenda' | 'summary' | 'action_items' | 'follow_up') => {
     if (!event || !user) return;
