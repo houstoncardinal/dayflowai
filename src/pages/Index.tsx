@@ -548,7 +548,7 @@ const Index = () => {
         </Suspense>
 
         <Suspense fallback={<LoadingFallback />}>
-          <EventModal
+          <EventWorkspace
             event={selectedEvent}
             isOpen={isEventModalOpen}
             onClose={() => {
