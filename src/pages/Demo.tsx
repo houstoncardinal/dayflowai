@@ -153,7 +153,7 @@ export default function Demo() {
   const [autoPlaying, setAutoPlaying] = useState(false);
   const [messageIndex, setMessageIndex] = useState(0);
   const chatRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<NodeJS.Timeout[]>([]);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const clearTimeouts = () => {
     timeoutRef.current.forEach(clearTimeout);
