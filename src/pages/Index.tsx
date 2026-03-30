@@ -37,6 +37,7 @@ import {
 // Lazy load heavy components
 const AddEventModal = lazy(() => import('@/components/calendar/AddEventModal').then(m => ({ default: m.AddEventModal })));
 const EventModal = lazy(() => import('@/components/calendar/EventModal').then(m => ({ default: m.EventModal })));
+const EventWorkspace = lazy(() => import('@/components/EventWorkspace'));
 const OnboardingTour = lazy(() => import('@/components/OnboardingTour').then(m => ({ default: m.OnboardingTour })));
 // AIRobot removed - CommandHub is the single AI entry point for authenticated users
 const VoiceAgent = lazy(() => import('@/components/VoiceAgent').then(m => ({ default: m.VoiceAgent })));
@@ -547,7 +548,7 @@ const Index = () => {
         </Suspense>
 
         <Suspense fallback={<LoadingFallback />}>
-          <EventModal
+          <EventWorkspace
             event={selectedEvent}
             isOpen={isEventModalOpen}
             onClose={() => {
