@@ -1,3 +1,3 @@
 # Roadmap
 
-- [ ] Enable Google sign-in on /auth
+- [x] Enable Google sign-in on /auth
